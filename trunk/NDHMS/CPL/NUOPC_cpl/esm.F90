@@ -26,7 +26,7 @@ module ESM
   use NWM_NUOPC_Cap, only: nwmSS => SetServices
  
   use NUOPC_Connector, only: cplSS => SetServices
-  use CON, only: concplSS => SetServices
+  !use CON, only: concplSS => SetServices
 
 
   implicit none

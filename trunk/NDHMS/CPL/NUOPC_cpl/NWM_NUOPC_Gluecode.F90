@@ -390,10 +390,10 @@ contains
     ! end testing
 
     print*, "Time Step:", itime
-    call NWM_SetFieldData(did, exportState)
+    call NWM_SetFieldData(did, importState=importState)
     call noahMp_exe(itime, state)
     print*, "Time Step:", itime
-    call NWM_SetFieldData(did, importState)
+    call NWM_SetFieldData(did, exportState=exportState)
 
     !print*, "BBBBBBBBBBBBBmy_id:", my_id, rt_domain(did)%qlink(itime,2) 
 
@@ -559,20 +559,20 @@ contains
 
       CASE ('water_level')
 
-        !NWM_FieldCreate = ESMF_FieldCreate(grid=grid, &
-        !                   typekind=ESMF_TYPEKIND_R8, & 
-        !                indexflag=ESMF_INDEX_DELOCAL, &
-        !                     name=trim(stdName), rc=rc)
-        !if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        NWM_FieldCreate = ESMF_FieldCreate(grid=grid, &
+                           typekind=ESMF_TYPEKIND_R8, & 
+                        indexflag=ESMF_INDEX_DELOCAL, &
+                             name=trim(stdName), rc=rc)
+        if(ESMF_STDERRORCHECK(rc)) return ! bail out
   
         ! test     
-        mesh = ESMF_MeshCreate(grid=grid, rc=rc)
-        if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        !mesh = ESMF_MeshCreate(grid=grid, rc=rc)
+        !if(ESMF_STDERRORCHECK(rc)) return ! bail out
 
         ! importable field: water level 
-        NWM_FieldCreate = ESMF_FieldCreate(name="water_level", mesh=mesh, &
-                                           typekind=ESMF_TYPEKIND_R8, rc=rc)
-        if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        !NWM_FieldCreate = ESMF_FieldCreate(name="water_level", mesh=mesh, &
+        !                                   typekind=ESMF_TYPEKIND_R8, rc=rc)
+        !if(ESMF_STDERRORCHECK(rc)) return ! bail out
 
         nullify(dataWL)
         call ESMF_FieldGet(NWM_FieldCreate,farrayPtr=dataWL,rc=rc)
@@ -1707,7 +1707,7 @@ contains
     integer :: excCnt(2),totCnt(2),cmpCnt(2),lbnd(2),ubnd(2)
     
     !test water level
-    real(ESMF_KIND_R8),pointer  :: dataWL(:)
+    real(ESMF_KIND_R8),pointer  :: dataWL(:,:)
     ! end test
 
 
@@ -1810,15 +1810,9 @@ contains
           call ESMF_VMGet(vm, localPet=localPet, petCount=petCnt, &
                           mpiCommunicator=esmf_comm, rc=rc)
           if(ESMF_STDERRORCHECK(rc)) return ! bail out
-          do j=0,petCnt
-            if(j==localPet) then
-               print *,"Water level data in import state for NWM Pet:", localPet
-               print *,dataWL
-               print *,""
-               call MPI_Barrier(esmf_comm, rc)
-               if(ESMF_STDERRORCHECK(rc)) return
-            endif
-          enddo
+          print *,"Water level data in import state for NWM Pet:", localPet
+          print *,dataWL
+          print *,""
           ! end test
 
           ! Get a DE-local Fortran array pointer from ADCIRC Field

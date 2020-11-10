@@ -1,4 +1,14 @@
 created: 11/12/19 - Beheen
+
+Beheen - 10/30/2020
+while developing func_nsem_prep code, updated hydro.namelist and namelist.hrldas and setEnvar from the
+/scratch2/COASTAL/coastal/save/COASTAL_ACT_NWC/NWM-v2.1/source/trunk/NDHMS directory into NWMV2.1
+data directory, here. The nuopc compilation copies these 3 files each time into NDHMS from template/
+NDHMS directory. For coastal act runtime, the code copies 2 config files as a template to runtime
+directory and also creates a new one through the code. So, be aware of the dependencies. For CA
+I want to make sure they stay consistent, so is inside the code. Not decided which one to use yet!
+The code version or the copy from nwm data dir to rundir
+
 modified: 12/17/19, 1/2/2020, 1/10/2020, 3/21/2020, 5/21/2020
 
 11/12/19 - the version of NWM is latest, v2.1 from git repo:

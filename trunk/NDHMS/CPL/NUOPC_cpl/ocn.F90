@@ -254,6 +254,7 @@ module OCN
     allocate(rsnsarray(locElementCnt))
     allocate(pmslarray(locElementCnt))
     allocate(sstarray(locElementCnt))
+
     allocate(streamflowarray(locElementCnt))
     do i=1, locElementCnt
       arbSeqIndexList(i) = locElementBeg + (i - 1)
