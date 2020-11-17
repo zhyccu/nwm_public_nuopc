@@ -77,6 +77,7 @@ esmApp: $(MODEL_OBJS) $(CAP_OBJS)
 #
 esmApp.o: esm.o 
 esm.o: atm.o ocn.o conn.o NWM_NUOPC_Macros.h NWM_NUOPC_Cap.o
+ocn.o: NWM_ESMF_Utility.o
 NWM_NUOPC_Cap.o: NWM_NUOPC_Gluecode.o NWM_ESMF_Extensions.o NWM_NUOPC_Macros.h
 NWM_ESMF_Utility.o: NWM_NUOPC_Macros.h
 NWM_NUOPC_Gluecode.o: NWM_NUOPC_Macros.h NWM_ESMF_Extensions.o NWM_ESMF_Utility.o
@@ -88,7 +89,7 @@ dust:
 	rm -f PET*.ESMF_LogFile *.nc traceout *.stdout diag* *.vtk
 nuopcclean:
 	rm -f esmApp *.o *.mod
-distclean: dust clean
+distclean: dust nuopcclean
 info:
 	@echo ==================================================================
 	@echo ESMFMKFILE=$(ESMFMKFILE)

@@ -67,7 +67,7 @@ module ESM
       file=__FILE__)) &
       return  ! bail out
 
-    ! Using 2 connectors, this and one exteral  
+    ! connector
     call NUOPC_CompSpecialize(driver, specLabel=driver_label_ModifyCplLists, &
       specRoutine=ModifyCplLists, rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &

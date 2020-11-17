@@ -2,7 +2,7 @@
 #define MODNAME "NWM_ESMF_Utility.F90"
 #include "NWM_NUOPC_Macros.h"
 
-#define DEBUG=on
+#define DEBUG=off
 
 !-------------------------------------------------------------------------------
 ! A test coupled application utility module
@@ -28,6 +28,8 @@ module NWM_ESMF_Utility
   public NWM_FieldGet
   public InitFieldDictionary
   public PrintTimers
+  public NWM_GridGet
+  public TimeIntervalGetReal
 
   !-----------------------------------------------------------------------------
   contains
@@ -50,6 +52,56 @@ module NWM_ESMF_Utility
 #endif
 
   end subroutine
+
+
+#undef METHOD
+#define METHOD "NWM_GridGet"
+  
+  subroutine NWM_GridGet(grid, staggerloc, localDE, dimCount)
+    ! Get DE-local information for a specific stagger location in a Grid
+
+    type(ESMF_Grid)           :: grid
+    type(ESMF_StaggerLoc)     :: staggerloc
+    integer                   :: localDE
+    integer                   :: dimCount     ! grid dimention count
+
+    !-- The following arguments require argument keyword syntax (e.g. rc=rc). --
+    integer, allocatable :: exclusiveLBound(:)
+    integer, allocatable :: exclusiveUBound(:)
+    integer, allocatable :: exclusiveCount(:)
+    integer, allocatable :: computationalLBound(:)
+    integer, allocatable :: computationalUBound(:)
+    integer, allocatable :: computationalCount(:)
+    integer :: rc, i, j
+
+#ifdef DEBUG
+    call ESMF_LogWrite(MODNAME//": entered "//METHOD, ESMF_LOGMSG_INFO)
+#endif
+
+    rc = ESMF_SUCCESS
+
+    allocate(exclusiveLBound(dimCount))
+    allocate(exclusiveUBound(dimCount))
+    allocate(exclusiveCount(dimCount))
+    allocate(computationalLBound(dimCount))
+    allocate(computationalUBound(dimCount))
+    allocate(computationalCount(dimCount))
+
+
+    call ESMF_GridGet(grid, staggerloc=staggerloc, localDE=localDE, &
+                      exclusiveLBound=exclusiveLBound, exclusiveUBound=exclusiveUBound, &
+                      exclusiveCount=exclusiveCount,  &
+                      computationalLBound=computationalLBound, computationalUBound=computationalUBound, &
+                      computationalCount=computationalCount, rc=rc)
+
+  print*,"GridGet exclusiveCount:",exclusiveCount, "for localDE: ", localDE
+
+#ifdef DEBUG
+    call ESMF_LogWrite(MODNAME//": leaving "//METHOD, ESMF_LOGMSG_INFO)
+#endif
+
+  end subroutine
+
 
 
 #undef METHOD
@@ -399,5 +451,25 @@ module NWM_ESMF_Utility
 2   format(a,': wtime: ',a20,i10,e14.6)
 
   end subroutine
+
+
+  function TimeIntervalGetReal(timeInterval,rc)
+    ! RETURN VALUE:
+    real                                :: TimeIntervalGetReal
+    ! ARGUMENTS
+    type(ESMF_TimeInterval),intent(in)  :: timeInterval
+    integer, intent(out), optional      :: rc
+
+    ! LOCAL VARIABLES
+    real(ESMF_KIND_R8)                  :: s_r8
+
+    if(present(rc)) rc = ESMF_SUCCESS
+
+    TimeIntervalGetReal = -9999
+
+    call ESMF_TimeIntervalGet(timeInterval,s_r8=s_r8,rc=rc)
+    if(ESMF_STDERRORCHECK(rc)) return ! bail out
+    TimeIntervalGetReal = s_r8
+  end function
 
 end module

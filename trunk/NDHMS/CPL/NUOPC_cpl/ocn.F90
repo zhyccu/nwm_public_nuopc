@@ -21,6 +21,8 @@ module OCN
     model_label_SetClock  => label_SetClock, &
     model_label_Advance   => label_Advance
   
+  use NWM_ESMF_Utility
+
   implicit none
   
   private
@@ -178,11 +180,11 @@ module OCN
     real, allocatable   :: rsnsarray(:)
     real, allocatable   :: pmslarray(:)
     real, allocatable   :: sstarray(:)
-    real, allocatable   :: streamflowarray(:)
+    real(ESMF_KIND_R8), pointer    :: streamflowarray(:)
 
     ! test for waterlevel
-    type(ESMF_Grid)     :: gridIn, gridOut
-    type(ESMF_Mesh)     :: meshIn, meshOut
+    type(ESMF_Grid)     :: grid
+    type(ESMF_Mesh)     :: mesh
     type(ESMF_Field)    :: waterlevelField
     real(ESMF_KIND_R8),pointer :: dataWL(:)
 
@@ -190,7 +192,7 @@ module OCN
     real(ESMF_KIND_R8), dimension(:), pointer  :: wlPtr => null()
     character(160)      :: msgString
     integer             :: dimCount, numOwnedElements, numOwnedNodes
-    integer                   :: verbosity
+    integer             :: verbosity
     integer :: parametricDim
     integer :: spatialDim
     integer :: nodeCnt
@@ -251,13 +253,14 @@ module OCN
 
     ! create local element list
     allocate(arbSeqIndexList(locElementCnt))
+    allocate(streamflowarray(locElementCnt))
     allocate(rsnsarray(locElementCnt))
     allocate(pmslarray(locElementCnt))
     allocate(sstarray(locElementCnt))
 
-    allocate(streamflowarray(locElementCnt))
     do i=1, locElementCnt
       arbSeqIndexList(i) = locElementBeg + (i - 1)
+      streamflowarray(i) = -9.0
       sstarray(i) = 3.0 * arbSeqIndexList(i)
     enddo
 
@@ -280,6 +283,26 @@ module OCN
       file=__FILE__)) &
       return  ! bail out
     locStreamOut = locStreamIn ! for now out same as in
+
+    ! importable field: streamflow
+    print*, "Beheen OCN size of streamflowarray", locElementCnt, localPet
+    streamflowField = ESMF_FieldCreate(locStreamIn, &
+                                   streamflowarray, &
+                                ESMF_INDEX_DELOCAL, &
+              datacopyflag=ESMF_DATACOPY_REFERENCE, &
+                                 name="streamflow", &
+                                               rc=rc)
+    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+      line=__LINE__, &
+      file=__FILE__)) &
+      return  ! bail out
+
+    call NUOPC_Realize(importState, field=streamflowField, rc=rc)
+    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+      line=__LINE__, &
+      file=__FILE__)) &
+      return  ! bail out
+
 
 
     ! importable field: air_pressure_at_sea_level
@@ -316,22 +339,6 @@ module OCN
       file=__FILE__)) &
       return  ! bail out
     
-    ! importable field: streamflow
-    streamflowField = ESMF_FieldCreate(locStreamIn, &
-                                   streamflowarray, &
-                                ESMF_INDEX_DELOCAL, &
-                                 name="streamflow", &
-                                               rc=rc)
-    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-      line=__LINE__, &
-      file=__FILE__)) &
-      return  ! bail out
-    call NUOPC_Realize(importState, field=streamflowField, rc=rc)
-    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-      line=__LINE__, &
-      file=__FILE__)) &
-      return  ! bail out
-
 
     ! exportable field: sea_surface_temperature
     !field = ESMF_FieldCreate(name="sst", locStream=locStreamOut, &
@@ -407,7 +414,14 @@ module OCN
       !    return  ! bail out
       !gridOut = gridIn ! for now out same as in
 
-    gridIn = ESMF_GridCreateNoPeriDimUfrm(maxIndex=(/10, 15/), &
+
+    ! shortcut - Create a uniform Grid with no periodic dim and a regular
+    ! distribution
+    ! function ESMF_GridCreateNoPeriDimUfrmR(minIndex, maxIndex, &
+    !     minCornerCoord, maxCornerCoord, &
+    !     regDecomp, decompFlag, &
+    !     coordSys, staggerLocList, petMap, name, rc)
+    grid = ESMF_GridCreateNoPeriDimUfrm(maxIndex=(/10, 15/), &
       minCornerCoord=(/-96.0_ESMF_KIND_R8, 6.2_ESMF_KIND_R8/), &
       maxCornerCoord=(/-53.0_ESMF_KIND_R8, 47.2_ESMF_KIND_R8/), &
       staggerLocList=(/ESMF_STAGGERLOC_CENTER, ESMF_STAGGERLOC_CORNER/), &
@@ -417,41 +431,32 @@ module OCN
       line=__LINE__, &
       file=__FILE__)) &
       return  ! bail out
-    gridOut = gridIn ! for now out same as in
+    
+    ! call NWM_GridGet(gridIn,ESMF_STAGGERLOC_CENTER,0,2)
     
     ! convert the Grid into a Mesh
-    meshOut = ESMF_MeshCreate(grid=gridOut, rc=rc)
+    mesh = ESMF_MeshCreate(grid=grid, rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
       line=__LINE__, &
       file=__FILE__)) &
       return  ! bail out
 
-    !call ESMF_MeshWrite(meshOut, filename="OCN-MeshOut", rc=rc)
-    !if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-    !  line=__LINE__, &
-    !  file=__FILE__)) &
-    !  return  ! bail out
-    !call ESMF_LogWrite("Done writing OCN-MeshOut VTK", &
-    !  ESMF_LOGMSG_INFO, rc=rc)
-    !if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-    !  line=__LINE__, &
-    !  file=__FILE__)) &
-    !  return  ! bail out
-
-    ! analyze the Mesh and log some info
-    call ESMF_MeshGet(meshOut, spatialDim=dimCount, &
-      numOwnedElements=numOwnedElements, numOwnedNodes=numOwnedNodes, rc=rc)
+    ! get mesh dimenssion
+    call ESMF_MeshGet(mesh, spatialDim=dimCount, &
+              numOwnedElements=numOwnedElements, &
+               numOwnedNodes=numOwnedNodes, rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
         line=__LINE__, &
         file=__FILE__)) &
-         return  ! bail out
-    !write(msgString,*) "OCN meshOut:   numOwnedElements=", numOwnedElements, &
-    !  "numOwnedNodes=", numOwnedNodes, "dimCount=", dimCount, "pet", localPet
-    !call ESMF_LogWrite(msgString, ESMF_LOGMSG_INFO, rc=rc)
-    !if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-    !  line=__LINE__, &
-    !  file=__FILE__)) &
-    !  return  ! bail out
+        return  ! bail out
+
+    write(msgString,*) "OCN mesh:   numOwnedElements=", numOwnedElements, &
+      "numOwnedNodes=", numOwnedNodes, "dimCount=", dimCount, "pet", localPet
+    call ESMF_LogWrite(msgString, ESMF_LOGMSG_INFO, rc=rc)
+    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+      line=__LINE__, &
+      file=__FILE__)) &
+      return  ! bail out
 
     !allocate(nodeOwners(nodeCount))
     !allocate(nodeCoords(2*nodeOwners))
@@ -466,73 +471,27 @@ module OCN
       ! "nodeCount=", nodeCount, "elementCount=", elementCount, &
     !   "numOwnedElements=", numOwnedElements, "numOwnedNodes=", numOwnedNodes
 
-
-    ! test
+    ! Create a Field from Mesh and Fortran array pointer
+    ! function ESMF_FieldCreateMeshDataPtr<rank><type><kind>(mesh, & 
+    !            farrayPtr, datacopyflag, meshloc, gridToFieldMap, & 
     ! exportable field: water level
-    field = ESMF_FieldCreate(name="wl", mesh=meshOut, &
-      typekind=ESMF_TYPEKIND_R8, rc=rc)
+    allocate(dataWL(numOwnedNodes))
+    dataWL = 30.0
+    field = ESMF_FieldCreate(name="wl", mesh=mesh, &
+                                 farrayPtr=dataWL, &
+             datacopyflag=ESMF_DATACOPY_REFERENCE, &
+                        meshloc=ESMF_MESHLOC_NODE, &
+                                              rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
       line=__LINE__, &
       file=__FILE__)) &
       return  ! bail out
+
     call NUOPC_Realize(exportState, field=field, rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
       line=__LINE__, &
       file=__FILE__)) &
       return  ! bail out
-
-    nullify(dataWL)
-    call ESMF_FieldGet(field,farrayPtr=dataWL,rc=rc)
-    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-      line=__LINE__, &
-      file=__FILE__)) &
-      return  ! bail out
-
-    dataWL = 30.0
-    do i=1, petCount
-      if(localPet == i) then
-        print *,"Water level data initialized in OCN Pet:", localPet
-        print*, "numOwnedNodes   :",numOwnedNodes
-        print*, "numOwnedElements:",numOwnedElements
-        print *,dataWL
-        print *,""
-      endif
-    enddo
-    ! end test
-
-    
-    ! allocate and initialize waterlevelarray here
-    !allocate(wlPtr(numOwnedNodes))
-    !wlPtr=4.0
-
-    !allocate(waterlevelarray(numOwnedNodes))
-    !do i=1,numOwnedNodes
-    !      waterlevelarray(i) = 4.0
-    !enddo
-      
-    ! exportable field - waterlevel
-    !waterlevelField = ESMF_FieldCreate(meshOut, name="wl", &
-      !typekind=ESMF_TYPEKIND_R8, &
-    !  farray=waterlevelarray, &
-    !  indexflag=ESMF_INDEX_DELOCAL, &
-      !ungriddedLbound=(/1/), ungriddedUbound=(/4/), rc=rc)
-    !  datacopyflag=ESMF_DATACOPY_REFERENCE, &
-    !  meshloc=ESMF_MESHLOC_NODE, &
-    !  rc=rc)
-    !if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-    !  line=__LINE__, &
-    !  file=__FILE__)) &
-    !  return  ! bail out
-    !call NUOPC_Realize(exportState, field=waterlevelField, rc=rc)
-    !if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-    !  line=__LINE__, &
-    !  file=__FILE__)) &
-    !  return  ! bail out
-
-    ! extro
-    !call NUOPC_LogExtro(name, rName, verbosity, rc=rc)
-    !if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-    !  line=__LINE__, file=trim(name)//":"//__FILE__)) return  ! bail out
 
  
     deallocate(arbSeqIndexList)
@@ -562,7 +521,7 @@ module OCN
     ! here: parent Clock and stability timeStep determine actual model timeStep
     !TODO: stabilityTimeStep should be read in from configuation
     !TODO: or computed from internal Grid information
-    call ESMF_TimeIntervalSet(stabilityTimeStep, m=5, rc=rc) ! 5 minute steps
+    call ESMF_TimeIntervalSet(stabilityTimeStep, h=1, rc=rc) ! 5 minute steps
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
       line=__LINE__, &
       file=__FILE__)) &
@@ -574,6 +533,153 @@ module OCN
       return  ! bail out
     
   end subroutine
+
+  subroutine printStreamflow(importState)
+
+    type(ESMF_State)               :: importState
+    type(ESMF_LocStream)           :: locstream
+    character(len=ESMF_MAXSTR)     :: locName
+
+    real(ESMF_KIND_R8), pointer    :: latArrayPtr(:)
+    real(ESMF_KIND_R8), pointer    :: lonArrayPtr(:)
+    real(ESMF_KIND_R8), pointer    :: flowRatePtr(:)
+    integer(ESMF_KIND_I4), pointer :: linkArrayPtr(:)
+
+    character(len=ESMF_MAXSTR), allocatable      :: itemNames(:)
+    character (len=ESMF_MAXSTR)                  :: itemName
+    type(ESMF_Field)                             :: itemField
+    integer :: i, localPet, petCount, j, esmf_comm, k, itemCnt, rc
+    type(ESMF_VM) :: vm
+
+
+    call ESMF_StateGet(importState, itemCount=itemCnt, rc=rc)
+    if (rc/=ESMF_SUCCESS) return
+    allocate(itemNames(itemCnt))
+
+    call ESMF_StateGet(importState, itemNameList=itemNames, rc=rc)
+
+    do i=1, itemCnt
+        itemName = trim(itemNames(i))
+        call ESMF_StateGet(importState, itemName, itemField, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+                               line=__LINE__, &
+                               file=__FILE__)) &
+                               return  ! bail out
+
+        SELECT CASE (trim(itemName))
+            CASE ('streamflow')
+              ! Get a DE-local Fortran array pointer from a Field
+              call ESMF_FieldGet(itemField, farrayPtr=flowRatePtr, rc=rc)
+              if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+                                     line=__LINE__, &
+                                     file=__FILE__)) &
+                                     return  ! bail out
+
+              call ESMF_FieldGet(itemField, locstream=locstream, vm=vm, rc=rc)
+              ! get the vm of this field
+              call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCount, &
+                              mpiCommunicator=esmf_comm, rc=rc)
+
+              ! field values 
+              !call ESMF_LocStreamGetKey(locstream, "Lat", farray=latArrayPtr, rc=rc)
+              !if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+              !                       line=__LINE__, &
+              !                       file=__FILE__)) &
+              !                       return  ! bail out
+
+              !call ESMF_LocStreamGetKey(locstream, "Lon", farray=lonArrayPtr, rc=rc)
+              !if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+              !                       line=__LINE__, &
+              !                       file=__FILE__)) &
+              !                       return  ! bail out
+
+              !call ESMF_LocStreamGetKey(locstream, "link", farray=linkArrayPtr, rc=rc)
+              !if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+              !                       line=__LINE__, &
+              !                       file=__FILE__)) &
+              !                       return  ! bail out
+
+              do j=0, petCount
+                  if (localPet == j) then
+                    print*, "OCN getting flowrate for DE:", localPet
+                    print*, "flowrate: ",flowRatePtr
+                    print*, "element count:", size(flowRatePtr)  
+                  endif
+                  call MPI_Barrier(esmf_comm, rc)
+                  if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+                      line=__LINE__, &
+                      file=__FILE__)) &
+                  return  ! bail out
+              enddo
+
+        END SELECT
+    enddo
+    deallocate(itemNames)
+
+  end subroutine
+
+
+  subroutine printWaterlevel(exportState, dt)
+    type(ESMF_State)     :: exportState
+    real(ESMF_KIND_R8)   :: dt
+
+    character(len=ESMF_MAXSTR), allocatable      :: itemNames(:)
+    character (len=ESMF_MAXSTR)                  :: itemName
+    type(ESMF_Field)                             :: itemField
+    integer                                      :: itemCnt
+    integer :: i, localPet, petCount, j, esmf_comm, k, rc
+    integer :: dimCount, numOwnedElements, numOwnedNodes
+    type(ESMF_VM)                                :: vm
+    type(ESMF_Mesh)                              :: mesh
+    real(ESMF_KIND_R8), dimension(:), pointer    :: wlPtr => null()
+
+    rc = ESMF_SUCCESS
+
+    call ESMF_StateGet(exportState, itemCount=itemCnt, rc=rc)
+    if (rc/=ESMF_SUCCESS) return
+
+    allocate(itemNames(itemCnt))
+    call ESMF_StateGet(exportState, itemNameList=itemNames, rc=rc)
+
+    do i=1, itemCnt
+      itemName = trim(itemNames(i))
+      call ESMF_StateGet(exportState, itemName, itemField, rc=rc)
+
+      SELECT CASE (itemName)
+
+        CASE ('wl')
+
+          call ESMF_FieldGet(itemField, mesh=mesh, vm=vm, rc=rc)
+          ! get mesh dimenssion
+          call ESMF_MeshGet(mesh, spatialDim=dimCount, &
+                    numOwnedElements=numOwnedElements, &
+                     numOwnedNodes=numOwnedNodes, rc=rc)
+         
+          call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCount, &
+                                     mpiCommunicator=esmf_comm, rc=rc)
+
+          nullify(wlPtr)
+          call ESMF_FieldGet(itemField, farrayPtr=wlPtr, rc=rc)
+          do j=0, petCount
+            if (localPet == j) then
+              print*, "OCN setting watelevel,nodes, pet:", numOwnedNodes,localPet
+              print*, wlPtr
+            endif
+            call MPI_Barrier(esmf_comm, rc)
+            if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+                line=__LINE__, &
+                file=__FILE__)) &
+                return  ! bail out
+          enddo
+
+      END SELECT
+    enddo
+    deallocate(wlPtr)
+    deallocate(itemNames)
+
+    ! end test
+  end subroutine
+    
 
   !-----------------------------------------------------------------------------
 
@@ -588,17 +694,7 @@ module OCN
     type(ESMF_TimeInterval)     :: timeStep
     character(len=160)          :: msgString
 
-    integer :: itemCnt
-
-    ! test
-    character(len=ESMF_MAXSTR), allocatable      :: itemNames(:)
-    character (len=ESMF_MAXSTR)                  :: itemName
-    type(ESMF_Field)                             :: itemField
-    integer :: i, localPet, petCount, j, esmf_comm, k
-    type(ESMF_VM) :: vm 
-    real(ESMF_KIND_R8), dimension(:), pointer  :: wlPtr => null()
-    ! end test
-                             
+    real(ESMF_KIND_R8)          :: dt
 
 #define NUOPC_TRACE__OFF
 #ifdef NUOPC_TRACE
@@ -642,52 +738,13 @@ module OCN
       file=__FILE__)) &
       return  ! bail out
    
-    ! test
-    call ESMF_VMGetCurrent(vm=vm, rc=rc)
-    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-      line=__LINE__, &
-      file=__FILE__)) &
-      return  ! bail out
+    ! print waterlevel
+    dt = TimeIntervalGetReal(timeStep)
+    call printWaterlevel(exportState,dt)
 
-    call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCount, &
-                    mpiCommunicator=esmf_comm, rc=rc)
-    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-      line=__LINE__, &
-      file=__FILE__)) &
-      return  ! bail out
+    ! print streamflow 
+    call printStreamflow(importState)
 
-    call ESMF_StateGet(exportState, itemCount=itemCnt, rc=rc)
-    if (rc/=ESMF_SUCCESS) return
-    allocate(itemNames(itemCnt))
-    call ESMF_StateGet(exportState, itemNameList=itemNames, rc=rc)
-    do i=1, itemCnt
-      itemName = trim(itemNames(i))
-      !print *, "OCN Export State Item Name: ", itemName
-      call ESMF_StateGet(exportState, itemName, itemField, rc=rc)
-      SELECT CASE (trim(itemName))
-        CASE ('wl')
-          ! Get a DE-local Fortran array pointer from a Field
-          call ESMF_FieldGet(itemField, farrayPtr=wlPtr, rc=rc)
-          do j=0, petCount
-            if (localPet == j) then 
-              print*, "Water level data in export state for OCN Pet:", localPet
-              print*, wlPtr
-            endif
-            call MPI_Barrier(esmf_comm, rc)
-            if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-                line=__LINE__, &
-                file=__FILE__)) &
-                return  ! bail out
-          enddo
-
-      END SELECT
-    enddo
-    deallocate(itemNames)
-    ! end test
- 
-
-    ! print streamflow and waterlevel here to compare with values received in
-    ! NWM
       
     call ESMF_TimePrint(currTime + timeStep, &
       preString="---------------------> to: ", unit=msgString, rc=rc)

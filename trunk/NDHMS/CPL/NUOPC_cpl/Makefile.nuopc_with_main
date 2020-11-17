@@ -3,7 +3,7 @@ all:
 	(cd CPL/NoahMP_cpl; make) 
 	(make -C Land_models/NoahMP -f Makefile.NoahMP.nuopc nuopc)
 	@echo ""
-	(make -C CPL/NUOPC_cpl -f Makefile.mainApp DEBUG=on)
+	(make -C CPL/NUOPC_cpl -f Makefile.mainApp DEBUG=off)
 	@echo ""
 
 nuopcinstall:

@@ -2,7 +2,7 @@
 #define MODNAME "NWM_NUOPC_Cap"
 #include "NWM_NUOPC_Macros.h"
 
-#define DEBUG=on
+#define DEBUG=off
 
 !export ESMF_RUNTIME_COMPLIANCECHECK=ON
 
@@ -488,7 +488,6 @@ module NWM_NUOPC_Cap
 
     NWM_ReachStream = NWM_ReachStreamCreate(is%wrap%did, vm=vm, rc=rc)
     if(ESMF_STDERRORCHECK(rc)) return ! bail out
-    !print*, "Beheen 479 locstream created"
    
     do fIndex = 1, size(NWM_FieldList)
      
@@ -662,7 +661,7 @@ module NWM_NUOPC_Cap
       if (ESMF_STDERRORCHECK(rc)) return  ! bail out
       is%wrap%debugImpSlice = is%wrap%debugImpSlice + 1
       is%wrap%debugExpSlice = is%wrap%debugExpSlice + 1
-      print*, "debugImp_ExpSlice: ", is%wrap%debugImpSlice, is%wrap%debugExpSlice
+      !print*, "debugImp_ExpSlice: ", is%wrap%debugImpSlice, is%wrap%debugExpSlice
     endif
 
     ! set InitializeDataComplete Attribute to "true", indicating to the

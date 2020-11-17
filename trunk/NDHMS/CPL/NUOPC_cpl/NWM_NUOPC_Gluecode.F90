@@ -2,7 +2,7 @@
 #define MODNAME "NWM_NUOPC_Gluecode.F90"
 #include "NWM_NUOPC_Macros.h"
 
-#define DEBUG=on
+#define DEBUG=off
 
 module NWM_NUOPC_Gluecode
 ! !MODULE: NWM_NUOPC_Gluecode
@@ -389,11 +389,9 @@ contains
     if(ESMF_STDERRORCHECK(rc)) return ! bail out
     ! end testing
 
-    print*, "Time Step:", itime
-    call NWM_SetFieldData(did, importState=importState)
-    call noahMp_exe(itime, state)
-    print*, "Time Step:", itime
-    call NWM_SetFieldData(did, exportState=exportState)
+    call NWM_SetFieldData(did, importState)
+    call noahMp_exe(itime, state)   
+    call NWM_SetFieldData(did, exportState)
 
     !print*, "BBBBBBBBBBBBBmy_id:", my_id, rt_domain(did)%qlink(itime,2) 
 
@@ -491,6 +489,7 @@ contains
 
     rc = ESMF_SUCCESS
 
+
     ! initialize farrayPtr_???? attached to locstream
     call ESMF_LocStreamGetBounds(locstream, computationalCount=loccnt, rc=rc)
     if (rc /= ESMF_SUCCESS) call ESMF_Finalize(endflag=ESMF_END_ABORT)
@@ -505,40 +504,41 @@ contains
     SELECT CASE (trim(stdName))
       CASE ('flow_rate')
 
-        !print*, "Beheen size of farrayPtr_streamflow", loccnt, my_id
+        print*, "Beheen NWM size of farrayPtr_streamflow", loccnt, my_id
         NWM_FieldCreate = ESMF_FieldCreate(locstream, &
-                                           farrayPtr=farrayPtr_streamflow, &
-                                           !typekind=ESMF_TYPEKIND_R8, &
+                                           farrayPtr_streamflow, &
+                                           ESMF_INDEX_DELOCAL, &
                                            datacopyflag=ESMF_DATACOPY_REFERENCE,&                   
                                            name=trim(stdName), rc=rc) 
         if(ESMF_STDERRORCHECK(rc)) return ! bail out
         
         ! for testing
-        call ESMF_FieldGet(NWM_FieldCreate, locstream=locstream2, vm=vm, rc=rc)
+        !call ESMF_FieldGet(NWM_FieldCreate, locstream=locstream2, vm=vm, rc=rc)
 
         ! get the vm of this field
-        call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCnt, &
-                                   mpiCommunicator=esmf_comm, rc=rc)
+        !call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCnt, &
+        !                           mpiCommunicator=esmf_comm, rc=rc)
 
         ! fill fields with values for export after physic calculations
-        call ESMF_LocStreamGetKey(locstream2, "Lat", farray=latArrayPtr, rc=rc)
-        if (ESMF_STDERRORCHECK(rc)) return
+        !call ESMF_LocStreamGetKey(locstream2, "Lat", farray=latArrayPtr, rc=rc)
+        !if (ESMF_STDERRORCHECK(rc)) return
 
-        call ESMF_LocStreamGetKey(locstream2, "Lon", farray=lonArrayPtr, rc=rc)
-        if (ESMF_STDERRORCHECK(rc)) return
+        !call ESMF_LocStreamGetKey(locstream2, "Lon", farray=lonArrayPtr, rc=rc)
+        !if (ESMF_STDERRORCHECK(rc)) return
 
-        call ESMF_LocStreamGetKey(locstream2, "link", farray=linkArrayPtr, rc=rc)
-        if (ESMF_STDERRORCHECK(rc)) return
+        !call ESMF_LocStreamGetKey(locstream2, "link", farray=linkArrayPtr, rc=rc)
+        !if (ESMF_STDERRORCHECK(rc)) return
 
-          do j=0,numprocs
-            if (my_id == j) then
-              print*, "link:     ", linkArrayPtr
-              print*, "lon:      ", lonArrayPtr
-              print*, "lat:      ", latArrayPtr
-            endif
-            call MPI_Barrier(esmf_comm, rc)
-            if(ESMF_STDERRORCHECK(rc)) return
-          enddo
+        !  do j=0,numprocs
+        !    if (my_id == j) then
+        !      print*, "pet :     ", my_id
+        !      print*, "link:     ", linkArrayPtr
+        !      print*, "lon:      ", lonArrayPtr
+        !      print*, "lat:      ", latArrayPtr
+        !    endif
+        !    call MPI_Barrier(esmf_comm, rc)
+        !    if(ESMF_STDERRORCHECK(rc)) return
+        !  enddo
 
         ! end for testing
 
@@ -548,6 +548,7 @@ contains
                         indexflag=ESMF_INDEX_DELOCAL, &
                                    name=stdName, rc=rc)
         if(ESMF_STDERRORCHECK(rc)) return ! bail out
+
 
       CASE ('river_velocity')
         NWM_FieldCreate = ESMF_FieldCreate(grid=grid, &
@@ -559,44 +560,55 @@ contains
 
       CASE ('water_level')
 
-        NWM_FieldCreate = ESMF_FieldCreate(grid=grid, &
-                           typekind=ESMF_TYPEKIND_R8, & 
-                        indexflag=ESMF_INDEX_DELOCAL, &
-                             name=trim(stdName), rc=rc)
-        if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        !NWM_FieldCreate = ESMF_FieldCreate(grid=grid, &
+        !                   typekind=ESMF_TYPEKIND_R8, & 
+        !                indexflag=ESMF_INDEX_DELOCAL, &
+        !                     name=trim(stdName), rc=rc)
+        !if(ESMF_STDERRORCHECK(rc)) return ! bail out
   
-        ! test     
-        !mesh = ESMF_MeshCreate(grid=grid, rc=rc)
-        !if(ESMF_STDERRORCHECK(rc)) return ! bail out
-
-        ! importable field: water level 
-        !NWM_FieldCreate = ESMF_FieldCreate(name="water_level", mesh=mesh, &
-        !                                   typekind=ESMF_TYPEKIND_R8, rc=rc)
-        !if(ESMF_STDERRORCHECK(rc)) return ! bail out
-
-        nullify(dataWL)
-        call ESMF_FieldGet(NWM_FieldCreate,farrayPtr=dataWL,rc=rc)
+             
+        mesh = ESMF_MeshCreate(grid=grid, rc=rc)
         if(ESMF_STDERRORCHECK(rc)) return ! bail out
-        dataWL = -9.0
-        
-        call ESMF_VMGetCurrent(vm, rc=rc)
-          if(ESMF_STDERRORCHECK(rc)) return ! bail out
-        call ESMF_VMGet(vm, localPet=localPet, petCount=petCnt, &
-                                mpiCommunicator=esmf_comm, rc=rc)
-          if(ESMF_STDERRORCHECK(rc)) return ! bail out
+
+        ! get mesh dimenssion
         call ESMF_MeshGet(mesh, spatialDim=dimCount, &
-             numOwnedElements=numOwnedElements, numOwnedNodes=numOwnedNodes, rc=rc)
-        do i=0,petCnt
-          if(i==localPet) then
-               print *,"Water level data initialized in NWM Pet:",localPet
-               print*,"numOwnedNodes   :",numOwnedNodes
-               print*,"numOwnedElements:",numOwnedElements
-               print *,dataWL
-               print *,""
-               call MPI_Barrier(esmf_comm, rc)
-               if(ESMF_STDERRORCHECK(rc)) return
-            endif
-          enddo
+                  numOwnedElements=numOwnedElements, &
+                   numOwnedNodes=numOwnedNodes, rc=rc)
+        if(ESMF_STDERRORCHECK(rc)) return ! bail out
+
+        allocate(dataWL(numOwnedNodes))
+        ! importable field: water level 
+        NWM_FieldCreate = ESMF_FieldCreate(name="water_level", mesh=mesh, &
+                                                        farrayPtr=dataWL, &
+                                    datacopyflag=ESMF_DATACOPY_REFERENCE, &
+                                               meshloc=ESMF_MESHLOC_NODE, &
+                                                                     rc=rc)
+        if(ESMF_STDERRORCHECK(rc)) return ! bail out
+
+
+        !nullify(dataWL)
+        !call ESMF_FieldGet(NWM_FieldCreate,farrayPtr=dataWL,rc=rc)
+        !if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        !dataWL = -9.0
+        
+        !call ESMF_VMGetCurrent(vm, rc=rc)
+        !  if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        !call ESMF_VMGet(vm, localPet=localPet, petCount=petCnt, &
+        !                        mpiCommunicator=esmf_comm, rc=rc)
+        !  if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        !call ESMF_MeshGet(mesh, spatialDim=dimCount, &
+        !     numOwnedElements=numOwnedElements, numOwnedNodes=numOwnedNodes, rc=rc)
+        !do i=0,petCnt
+        !  if(i==localPet) then
+        !       print *,"Water level data initialized in NWM Pet:",localPet
+        !       print*,"numOwnedNodes   :",numOwnedNodes
+        !       print*,"numOwnedElements:",numOwnedElements
+        !       print *,dataWL
+        !       print *,""
+        !       call MPI_Barrier(esmf_comm, rc)
+        !       if(ESMF_STDERRORCHECK(rc)) return
+        !    endif
+        !  enddo
         ! end test
 
       CASE ('air_pressure_at_sea_level')
@@ -1665,20 +1677,55 @@ contains
 
   end subroutine
 
+
+  subroutine setWaterlevel(itemField)
+    type(ESMF_Field)   :: itemField
+
+    integer :: i, localPet, petCount, j, esmf_comm, k, rc
+    integer :: dimCount, numOwnedElements, numOwnedNodes
+    type(ESMF_VM)                                :: vm
+    type(ESMF_Mesh)                              :: mesh
+    real(ESMF_KIND_R8), dimension(:), pointer    :: wlPtr => null()
+
+    rc = ESMF_SUCCESS
+
+    call ESMF_FieldGet(itemField, mesh=mesh, vm=vm, rc=rc)
+    if(ESMF_STDERRORCHECK(rc)) return ! bail out
+
+    call ESMF_MeshGet(mesh, spatialDim=dimCount, &
+              numOwnedElements=numOwnedElements, &
+               numOwnedNodes=numOwnedNodes, rc=rc)
+    if(ESMF_STDERRORCHECK(rc)) return ! bail out
+
+    call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCount, &
+                                 mpiCommunicator=esmf_comm, rc=rc)
+
+    call ESMF_FieldGet(itemField, farrayPtr=wlPtr, rc=rc)
+    do j=0, petCount
+      if (localPet == j) then
+        print*, "NWM getting Water level data, nodes, pet", numOwnedNodes, localPet
+        print*, wlPtr
+      endif
+      call MPI_Barrier(esmf_comm, rc)
+      if(ESMF_STDERRORCHECK(rc)) return ! bail out
+    enddo
+
+    deallocate(wlPtr)
+
+  end subroutine
+
+
   !-----------------------------------------------------------------------------
 
 #undef METHOD
 #define METHOD "NWM_SetFieldData"
 
-  subroutine NWM_SetFieldData(did, importState, exportState)
-    type(ESMF_State), intent(inout), optional :: importState
-    type(ESMF_State), intent(inout), optional :: exportState
+  subroutine NWM_SetFieldData(did, activeState)
     integer, intent(in)                       :: did
+    type(ESMF_State)                          :: activeState
 
     ! local variables
     integer :: i, j, k, esmf_comm, localPet, petCnt, rc, localElmCnt
-
-    type(ESMF_State)                             :: activeState
 
     integer                                      :: itemCnt
     character(len=ESMF_MAXSTR), allocatable      :: itemNames(:)
@@ -1707,7 +1754,7 @@ contains
     integer :: excCnt(2),totCnt(2),cmpCnt(2),lbnd(2),ubnd(2)
     
     !test water level
-    real(ESMF_KIND_R8),pointer  :: dataWL(:,:)
+    real(ESMF_KIND_R8),pointer  :: dataWL(:)
     ! end test
 
 
@@ -1717,14 +1764,6 @@ contains
 
     rc = ESMF_SUCCESS
    
-    if(present(importState)) then
-        activeState = importState
-    else if (present(exportState)) then
-        activeState = exportState
-    else
-        ! todo
-        print*, "Error - must provide one state at least"
-    endif
 
     ! fill fields with values for export after physic calculations
     call ESMF_StateGet(activeState, itemCount=itemCnt, rc=rc)
@@ -1751,32 +1790,31 @@ contains
           call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCnt, &
                                      mpiCommunicator=esmf_comm, rc=rc)
           
-          !call ESMF_LocStreamGetBounds(locstream, localDE=0,  &
-          !                   computationalCount=localElmCnt, rc=rc)
+          call ESMF_LocStreamGetBounds(locstream, localDE=0,  &
+                         computationalCount=localElmCnt, rc=rc)
 
           ! fill fields with values for export after physic calculations
-          localElmCnt = size(flowRatePtr)
+          !localElmCnt = size(flowRatePtr)
           flowRatePtr = rt_domain(did)%qlink(1:localElmCnt,2)
           call ESMF_LocStreamGetKey(locstream, "Lat", farray=latArrayPtr, rc=rc)
           if (ESMF_STDERRORCHECK(rc)) return
           call ESMF_LocStreamGetKey(locstream, "Lon", farray=lonArrayPtr, rc=rc)
           if (ESMF_STDERRORCHECK(rc)) return
-          !call ESMF_LocStreamGetKey(locstream, "link", farray=linkArrayPtr, rc=rc)
-          !if (ESMF_STDERRORCHECK(rc)) return
+          call ESMF_LocStreamGetKey(locstream, "link", farray=linkArrayPtr, rc=rc)
+          if (ESMF_STDERRORCHECK(rc)) return
           
-         
-          do j=0,numprocs
-            if (my_id == j) then
-              print*, "flowrate: ", flowRatePtr
-              print*, "process ID:", my_id
-              print*, "element count:", localElmCnt  
+          !do j=0,numprocs
+          !  if (my_id == j) then
+          !    print*, "NWM setting flowrate for DE:", my_id
+          !    print*, "flowrate: ", flowRatePtr
+          !    print*, "element count:", localElmCnt  
               !print*, "link:     ", linkArrayPtr
-              print*, "lon:      ", lonArrayPtr
-              print*, "lat:      ", latArrayPtr
-            endif
-            call MPI_Barrier(esmf_comm, rc)
-            if(ESMF_STDERRORCHECK(rc)) return
-          enddo
+              !print*, "lon:      ", lonArrayPtr
+              !print*, "lat:      ", latArrayPtr
+          !  endif
+          !  call MPI_Barrier(esmf_comm, rc)
+          !  if(ESMF_STDERRORCHECK(rc)) return
+          !enddo
 
 
        ! CASE ('surface_runoff')
@@ -1796,24 +1834,7 @@ contains
         CASE ('water_level')
           call ESMF_StateGet(activeState, itemName="water_level", field=itemField, rc=rc)
           if (ESMF_STDERRORCHECK(rc)) return
-
-          ! test
-          nullify(dataWL)
-          call ESMF_FieldGet(itemField,farrayPtr=dataWL,rc=rc)
-          if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-              line=__LINE__, &
-              file=__FILE__)) &
-              return  ! bail out
-
-          call ESMF_VMGetCurrent(vm, rc=rc)
-          if(ESMF_STDERRORCHECK(rc)) return ! bail out
-          call ESMF_VMGet(vm, localPet=localPet, petCount=petCnt, &
-                          mpiCommunicator=esmf_comm, rc=rc)
-          if(ESMF_STDERRORCHECK(rc)) return ! bail out
-          print *,"Water level data in import state for NWM Pet:", localPet
-          print *,dataWL
-          print *,""
-          ! end test
+          call setWaterlevel(itemField)
 
           ! Get a DE-local Fortran array pointer from ADCIRC Field
           !
