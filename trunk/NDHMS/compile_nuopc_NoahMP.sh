@@ -82,6 +82,8 @@ if [ "${MAINAPP}" == "ON" ]; then
     echo "Compiling NUOPC with mainApp ......"
     cp CPL/NUOPC_cpl/Makefile.nuopc_with_main Makefile.nuopc
 else
+    echo
+    echo "Compiling NUOPC with NEMS ......"
     cp CPL/NUOPC_cpl/Makefile.nuopc Makefile.nuopc
 fi
 
