@@ -275,7 +275,9 @@ contains
     ! Initialize NWM before setting up fields
     ! getting back ntime and state from NWM 
     ! ntime = khour*3600./nint(dtbl)   !dtbl = real(noah_lsm%noah_timestep)
-    call noahMP_init(ntime, hydstate, nuopc_comm=esmf_comm)
+    !!!!!zhy, change writing
+    !!call noahMP_init(ntime, hydstate, nuopc_comm=esmf_comm)
+    call noahMP_init(ntime, hydstate, nuopc_comm)
     ! Beheen add an error dete. here
 
     ! after nwm initialization, runduration (i.e. NTIME) and hydro state

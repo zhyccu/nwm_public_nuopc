@@ -480,11 +480,12 @@ module NWM_NUOPC_Cap
     NWM_LSMGrid = NWM_LSMGridCreate(is%wrap%did,rc=rc)
     if(ESMF_STDERRORCHECK(rc)) return ! bail out
 
-    if (is%wrap%lwrite_grid) then
-      call NWM_ESMF_GridWrite(NWM_LSMGrid, &
-        trim(cname)//'_LSMGrid_D'//trim(is%wrap%hgrid)//".nc", rc=rc)
-      if (ESMF_STDERRORCHECK(rc)) return  ! bail out
-    endif
+    !!!!!zhy, comment out 
+    !!if (is%wrap%lwrite_grid) then
+    !!  call NWM_ESMF_GridWrite(NWM_LSMGrid, &
+    !!    trim(cname)//'_LSMGrid_D'//trim(is%wrap%hgrid)//".nc", rc=rc)
+    !!  if (ESMF_STDERRORCHECK(rc)) return  ! bail out
+    !!endif
 
     NWM_ReachStream = NWM_ReachStreamCreate(is%wrap%did, vm=vm, rc=rc)
     if(ESMF_STDERRORCHECK(rc)) return ! bail out
