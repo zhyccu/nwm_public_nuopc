@@ -50,7 +50,724 @@ module NWM_ESMF_Extensions
   public :: NWM_NEMS_Clock
   public :: NWM_VMPrint
 
-  
+
+  !!!!!zhy, subroutines for debug
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+ 
+    public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+  public :: zhy_WriteBreakPoint
+  public :: zhy_LogicalToString
+  public :: zhy_convertToString
+  public :: zhy_convertToString2
+  public :: zhy_convertToString3
+  public :: zhy_convertToNumber
+  public :: zhy_WriteGridToNetcdf
+
   character(len=ESMF_MAXSTR) :: logMsg
 !==============================================================================
 !
@@ -1966,6 +2683,1254 @@ type(ESMF_KeywordEnforcer), optional:: keywordEnforcer ! must use keywords below
       call NWM_ESMF_FillField(fieldList(fIndex),value=value,rc=rc)
       if (ESMF_LogFoundError(rcToCheck=rc, PASSTHRU)) return  ! bail out
     enddo
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
 
     deallocate(fieldList,stat=stat)
     if (ESMF_LogFoundDeallocError(statusToCheck=stat, &
@@ -5375,6 +7340,109 @@ SUBROUTINE NWM_ConfigPrint(config, label)
   print*,"Config label or default ", label
 !
 END
+
+  subroutine zhy_WriteBreakPoint(filename,text)
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: text
+    logical :: exist
+    inquire(file=filename,exist=exist)
+    if (exist) then
+      open(unit=4,file=filename,status='old',position='append')
+    else
+      open(unit=4,file=filename,status='new')
+    end if
+    write(4,'(A)') "zhy@ " // text
+    close(4)
+  end subroutine zhy_WriteBreakPoint
+
+  subroutine zhy_LogicaltoString(logicalValue,str)
+    logical, intent(in) :: logicalValue
+    character(len=5), intent(inout) :: str
+
+    if (logicalValue) then
+       str="True"
+    else
+       str="False"
+    end if
+  end subroutine zhy_LogicaltoString
+
+subroutine zhy_convertToString(data, string)
+  implicit none
+  real(ESMF_KIND_R8), intent(in) :: data
+  character(len=20), intent(out) :: string
+
+  ! Convert the data to a string using WRITE statement
+  write(string, '(G20.10)') data
+
+  ! Trim any trailing spaces in the string
+  string = trim(string)
+end subroutine zhy_convertToString
+
+subroutine zhy_convertToNumber(data, number)
+  implicit none
+  real(ESMF_KIND_R8), intent(out) :: number
+  character(len=20), intent(in) :: data
+
+  read(data,*) number
+
+end subroutine zhy_convertToNumber
+
+subroutine zhy_convertToString2(data, string)
+  implicit none
+  real, intent(in) :: data
+  character(len=20), intent(out) :: string
+
+  ! Convert the data to a string using WRITE statement
+  write(string, '(G20.10)') data
+
+  ! Trim any trailing spaces in the string
+  string = trim(string)
+end subroutine zhy_convertToString2
+
+
+subroutine zhy_convertToString3(data, string)
+  implicit none
+  integer, intent(in) :: data
+  character(len=20), intent(out) :: string
+
+  write(string, "(I0)") data
+  ! Trim any trailing spaces in the string
+  string = trim(string)
+end subroutine zhy_convertToString3
+
+!  subroutine zhy_WriteGridToNetcdf(filename,grid)
+!    use ESMF
+!    implicit none
+!    character(len=*), intent(in) :: filename
+!    real,dimension(:,:), intent(in) :: grid
+!    integer :: ncid, varid, dimids(2)
+!    integer :: status
+!    integer, dimension(2) :: array_dim
+!
+!    !!integer :: nx, ny
+!    !!nx=size(grid,1)
+!    !!ny=size(grid,2)
+!
+!    array_dim=shape(grid)
+!
+!    status=nf90_create(filename,nf90_clobber,ncid)
+!
+!    status=nf90_def_dim(ncid,"x",array_dim(1),dimids(1))
+!    status=nf90_def_dim(ncid,"y",array_dim(2),dimids(2))
+!
+!    status=nf90_def_var(ncid,"grid",nf90_real,dimids,varid)
+!
+!    status=nf90_enddef(ncid)
+!
+!    status=nf90_put_var(ncid,varid,grid)
+!
+!    status=nf90_close(ncid)
+!
+!  end subroutine zhy_WriteGridToNetcdf
+
+
+
+
 
 
 end module NWM_ESMF_Extensions
