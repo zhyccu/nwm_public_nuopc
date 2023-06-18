@@ -86,7 +86,7 @@ module NWM_NUOPC_Gluecode
     real(ESMF_KIND_R8), dimension(:), pointer :: farrayPtr => null()
   end type NWM_Field
 
-  type(NWM_Field),dimension(19) :: NWM_FieldList = (/ & 
+  type(NWM_Field),dimension(3) :: NWM_FieldList = (/ & 
     ! NWM output - file: 201905160600.CHRTOUT_DOMAIN1
     ! Routing/module_NWM_io.F: 3415       iret = nf90_inq_varid(ftn,'streamflow',varId) 
     ! Routing/module_NWM_io.F: 335 call ReachLS_write_io(RT_DOMAIN(domainId)%QLINK(:,2),g_qlink(:,2))
@@ -95,94 +95,100 @@ module NWM_NUOPC_Gluecode
       desc='volume of fluid passing by some location through an area during a period of time.', shortname='streamflow', &
       adImport=.FALSE.,adExport=.TRUE.), &
 
-    NWM_Field( & !(2) 
-      stdname='surface_runoff', units='m3 s-1', &
-      desc='water, from rain, snowmelt, or other sources, that flows over the land surface.', shortname='qSfcLatRunoff', &
+    NWM_Field( & !zhy, add discharge export for schism
+      stdname='discharge', units='m3 s-1', &
+      desc='volume of fluid passing by some location through an area during a period of time.', shortname='discharge', &
       adImport=.FALSE.,adExport=.TRUE.), &
+      
 
-    NWM_Field( & !(3)
-      stdname='river_velocity', units='m s-1', &
-      desc='vector filed of river or flow velocity.', shortname='velocity', &
-      adImport=.FALSE.,adExport=.TRUE.), &
-    
-
-    ! Atmospheric Forcing, HWRF - file: 2011082720.LDASIN_DOMAIN1, func: READFORC_HRLDAS
-    NWM_Field( & !(5) U_PHY     (XSTART:XEND,KDS:KDE,YSTART:YEND) )  ! 3D U wind component [m/s]
-      stdname='wind_velocity_u', units='m s-1', &
-      desc='UGRD, 10-m eastward wind', shortname='U2D', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(6) V_PHY     (XSTART:XEND,KDS:KDE,YSTART:YEND) )  ! 3D V wind component [m/s]
-      stdname='wind_velocity_v', units='m s-1', &
-      desc='VGRD, 10-m northward wind', shortname='V2D', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(7) 
-      stdname='air_pressure_at_sea_level', units='Pa', &   !atm pmsl
-                              !stdname='surface_pressure', units='Pa', &
-      desc='surface pressure.', shortname='PSFC', &    
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(8) T_PHY     (XSTART:XEND,KDS:KDE,YSTART:YEND) )  ! 3D atmospheric temperature valid at mid-levels [K]- TSK, (XSTART:XEND,YSTART:YEND) )  ! surface radiative temperature [K]
-      stdname='air_temperature', units='K', &
-      desc='2-m air temperature.', shortname='T2D', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(9) 
-      stdname='specific_humidity', units='kg kg-1', &
-      desc='2-m specific humidity.', shortname='Q2D', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(10) SWDOWN    (XSTART:XEND,YSTART:YEND) )    ! solar down at surface [W m-2]
-      stdname='surface_net_downward_shortwave_flux', units='w m-2', &    !atm rsns
-      !stdname='shortwave_height', units='w m-2', &
-      desc='surface downward shortwave radiation flux', shortname='SWDOWN', &    
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(11) GLW       (XSTART:XEND,YSTART:YEND) )    ! longwave down at surface [W m-2]
-      stdname='longwave_height', units='w m-2', & 
-      desc='surface downward longwave radiation flux', shortname='LWDOWN', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(12 file: ??)
-      stdname='precipitation_rate', units='kg/m2s', & 
-      desc='15-min surface precipitation rate', shortname='PRATE', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(13)
-      stdname='cloud_cover', units='??', & 
-      desc='total cloud cover, fraction: 0-1', shortname='TCC', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(14 file: ???) 
-      stdname='mean_sea_level', units='Pa', &
-      desc='PRMSL, Pressure Reduced to MSL, atm. pressure', shortname='PMSL', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(15) 
-      stdname='rediation_stress_xy', units='m s-1', &
-      desc='Rediation stress Instantanous fields', shortname='SXY', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(16)
-      stdname='rediation_stress_xx', units='m s-1', &
-      desc='Rediation stress Instantanous fields', shortname='SXX', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(17)
-      stdname='rediation_stress_yy', units='m s-1', &
-      desc='Rediation stress Instantanous fields', shortname='SYY', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(18)
-      stdname='wave_peak_mean_dir', units='degree', &
-      desc='Peak/Mean wave direction', shortname='??', &
-      adImport=.TRUE.,adExport=.FALSE.), &
-
-    NWM_Field( & !(ADCIRC waterlevel advertized name)
-      stdname="sea_surface_height_above_sea_level",  units='m', &
-      desc='waterlevel', shortname='zeta', &
-      adImport=.TRUE.,adExport=.FALSE.), &
+!    NWM_Field( & !(2) 
+!      stdname='surface_runoff', units='m3 s-1', &
+!      desc='water, from rain, snowmelt, or other sources, that flows over the land surface.', shortname='qSfcLatRunoff', &
+!      adImport=.FALSE.,adExport=.TRUE.), &
+!
+!    NWM_Field( & !(3)
+!      stdname='river_velocity', units='m s-1', &
+!      desc='vector filed of river or flow velocity.', shortname='velocity', &
+!      adImport=.FALSE.,adExport=.TRUE.), &
+!    
+!
+!    ! Atmospheric Forcing, HWRF - file: 2011082720.LDASIN_DOMAIN1, func: READFORC_HRLDAS
+!    NWM_Field( & !(5) U_PHY     (XSTART:XEND,KDS:KDE,YSTART:YEND) )  ! 3D U wind component [m/s]
+!      stdname='wind_velocity_u', units='m s-1', &
+!      desc='UGRD, 10-m eastward wind', shortname='U2D', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(6) V_PHY     (XSTART:XEND,KDS:KDE,YSTART:YEND) )  ! 3D V wind component [m/s]
+!      stdname='wind_velocity_v', units='m s-1', &
+!      desc='VGRD, 10-m northward wind', shortname='V2D', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(7) 
+!      stdname='air_pressure_at_sea_level', units='Pa', &   !atm pmsl
+!                              !stdname='surface_pressure', units='Pa', &
+!      desc='surface pressure.', shortname='PSFC', &    
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(8) T_PHY     (XSTART:XEND,KDS:KDE,YSTART:YEND) )  ! 3D atmospheric temperature valid at mid-levels [K]- TSK, (XSTART:XEND,YSTART:YEND) )  ! surface radiative temperature [K]
+!      stdname='air_temperature', units='K', &
+!      desc='2-m air temperature.', shortname='T2D', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(9) 
+!      stdname='specific_humidity', units='kg kg-1', &
+!      desc='2-m specific humidity.', shortname='Q2D', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(10) SWDOWN    (XSTART:XEND,YSTART:YEND) )    ! solar down at surface [W m-2]
+!      stdname='surface_net_downward_shortwave_flux', units='w m-2', &    !atm rsns
+!      !stdname='shortwave_height', units='w m-2', &
+!      desc='surface downward shortwave radiation flux', shortname='SWDOWN', &    
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(11) GLW       (XSTART:XEND,YSTART:YEND) )    ! longwave down at surface [W m-2]
+!      stdname='longwave_height', units='w m-2', & 
+!      desc='surface downward longwave radiation flux', shortname='LWDOWN', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(12 file: ??)
+!      stdname='precipitation_rate', units='kg/m2s', & 
+!      desc='15-min surface precipitation rate', shortname='PRATE', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(13)
+!      stdname='cloud_cover', units='??', & 
+!      desc='total cloud cover, fraction: 0-1', shortname='TCC', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(14 file: ???) 
+!      stdname='mean_sea_level', units='Pa', &
+!      desc='PRMSL, Pressure Reduced to MSL, atm. pressure', shortname='PMSL', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(15) 
+!      stdname='rediation_stress_xy', units='m s-1', &
+!      desc='Rediation stress Instantanous fields', shortname='SXY', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(16)
+!      stdname='rediation_stress_xx', units='m s-1', &
+!      desc='Rediation stress Instantanous fields', shortname='SXX', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(17)
+!      stdname='rediation_stress_yy', units='m s-1', &
+!      desc='Rediation stress Instantanous fields', shortname='SYY', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(18)
+!      stdname='wave_peak_mean_dir', units='degree', &
+!      desc='Peak/Mean wave direction', shortname='??', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
+!
+!    NWM_Field( & !(ADCIRC waterlevel advertized name)
+!      stdname="sea_surface_height_above_sea_level",  units='m', &
+!      desc='waterlevel', shortname='zeta', &
+!      adImport=.TRUE.,adExport=.FALSE.), &
  
     ! For testing waterlevel for now we use this
     NWM_Field( & !(19)
@@ -484,6 +490,35 @@ contains
     integer :: numOwnedElements, numOwnedNodes, dimCount
     ! end for testing
 
+    !!!!!zhy
+    integer, parameter :: numPoints=3
+    integer, allocatable :: zhy_arbSeqIndexList(:)
+    type(ESMF_distgrid) :: zhy_distgrid
+    type(ESMF_LocStream) :: zhy_LocStream
+    real(ESMF_KIND_R8),dimension(3) :: lats=(/33.833115,33.670307,33.440487/)
+    real(ESMF_KIND_R8),dimension(3) :: lons=(/-79.04396,-79.15293,-79.24887/)
+    integer(ESMF_KIND_I4),dimension(3):: mask=(/0,0,0/)
+    integer :: numLocations=3
+
+    type(ESMF_ArraySpec) :: arrayspec
+    real(ESMF_KIND_R8), pointer :: coordPtr(:,:)
+
+    integer :: z,ii,jj
+    type(ESMF_Grid)             :: zhy_grid
+
+!    real(ESMF_KIND_R8),dimension(1,3) :: fptr_test2
+!    real(ESMF_KIND_R8), pointer :: fptr_test(:,:)
+!    real(ESMF_KIND_R8), allocatable :: fptr_data(:,:)
+    real(ESMF_KIND_R8), dimension(:,:),pointer :: fptr_test
+    real(ESMF_KIND_R8), dimension(:,:),allocatable,target :: fptr_data
+    !real, allocatable :: fptr_data(:,:)
+    !real, pointer :: fptr_test(:,:)
+    character(len=20)          :: str0,str1,str2,str3
+    real(ESMF_KIND_R8)         :: num1,num2,num3
+
+
+
+    
 
 #ifdef DEBUG
     call ESMF_LogWrite(MODNAME//": entered "//METHOD, ESMF_LOGMSG_INFO)
@@ -495,9 +530,11 @@ contains
     ! initialize farrayPtr_???? attached to locstream
     call ESMF_LocStreamGetBounds(locstream, computationalCount=loccnt, rc=rc)
     if (rc /= ESMF_SUCCESS) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+
     allocate(farrayPtr_streamflow(loccnt))
     farrayPtr_streamflow = -9.9
-
+    
+    
     ! temp
     allocate(farrayPtr_loc(loccnt))
     farrayPtr_loc = -9.9
@@ -507,6 +544,16 @@ contains
       CASE ('flow_rate')
 
         print*, "Beheen NWM size of farrayPtr_streamflow", loccnt, my_id
+        NWM_FieldCreate = ESMF_FieldCreate(locstream, &
+                                           farrayPtr_streamflow, &
+                                           ESMF_INDEX_DELOCAL, &
+                                           datacopyflag=ESMF_DATACOPY_REFERENCE,&                   
+                                           name=trim(stdName), rc=rc) 
+        if(ESMF_STDERRORCHECK(rc)) return ! bail out
+
+
+      !!!!!zhy, add case discharge
+      CASE ('discharge')
         NWM_FieldCreate = ESMF_FieldCreate(locstream, &
                                            farrayPtr_streamflow, &
                                            ESMF_INDEX_DELOCAL, &
@@ -1759,6 +1806,9 @@ contains
     real(ESMF_KIND_R8),pointer  :: dataWL(:)
     ! end test
 
+    !!!!!zhy, prints
+    character(len=20)          :: str0,str1,str2,str3
+
 
 #ifdef DEBUG
     call ESMF_LogWrite(MODNAME//": entered "//METHOD, ESMF_LOGMSG_INFO)
@@ -1833,6 +1883,51 @@ contains
        !                              name=stdName, rc=rc)
        ! if(ESMF_STDERRORCHECK(rc)) return ! bail out
 
+        CASE ('discharge')
+
+          ! Get a DE-local Fortran array pointer from a Field
+          call ESMF_FieldGet(itemField, farrayPtr=flowRatePtr, rc=rc)
+          if (ESMF_STDERRORCHECK(rc)) return
+
+          call ESMF_FieldGet(itemField, locstream=locstream, vm=vm, rc=rc)
+          ! get the vm of this field
+          call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCnt, &
+                                     mpiCommunicator=esmf_comm, rc=rc)
+
+          call ESMF_LocStreamGetBounds(locstream, localDE=0,  &
+                         computationalCount=localElmCnt, rc=rc)
+
+          ! fill fields with values for export after physic calculations
+          !localElmCnt = size(flowRatePtr)
+          flowRatePtr = rt_domain(did)%qlink(1:localElmCnt,2)
+
+          print *, size(rt_domain(did)%qlink)
+
+          call zhy_convertToString(flowRatePtr(1),str1)
+          call zhy_WriteBreakPoint("zhy.log","discharge val1 "// str1 )
+          call zhy_convertToString(flowRatePtr(2),str2)
+          call zhy_WriteBreakPoint("zhy.log","discharge val2 "// str2 )
+          call zhy_convertToString(flowRatePtr(3),str3)
+          call zhy_WriteBreakPoint("zhy.log","discharge val3 "// str3 )
+
+          call ESMF_LocStreamGetKey(locstream, "ESMF:Lat", farray=latArrayPtr, rc=rc)
+          if (ESMF_STDERRORCHECK(rc)) return
+          call ESMF_LocStreamGetKey(locstream, "ESMF:Lon", farray=lonArrayPtr, rc=rc)
+          if (ESMF_STDERRORCHECK(rc)) return
+          call ESMF_LocStreamGetKey(locstream, "link", farray=linkArrayPtr, rc=rc)
+          if (ESMF_STDERRORCHECK(rc)) return
+          call ESMF_LocStreamGetKey(locstream, "ESMF:Mask", farray=linkArrayPtr, rc=rc)
+          if (ESMF_STDERRORCHECK(rc)) return
+
+
+
+
+
+
+
+
+
+          
         CASE ('water_level')
           call ESMF_StateGet(activeState, itemName="water_level", field=itemField, rc=rc)
           if (ESMF_STDERRORCHECK(rc)) return
