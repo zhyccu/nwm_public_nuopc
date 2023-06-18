@@ -1904,11 +1904,11 @@ contains
           print *, size(rt_domain(did)%qlink)
 
           call zhy_convertToString(flowRatePtr(1),str1)
-          call zhy_WriteBreakPoint("zhy.log","discharge val1 "// str1 )
+          call zhy_WriteBreakPoint("zhy_nwm.log","discharge val1 "// str1 )
           call zhy_convertToString(flowRatePtr(2),str2)
-          call zhy_WriteBreakPoint("zhy.log","discharge val2 "// str2 )
+          call zhy_WriteBreakPoint("zhy_nwm.log","discharge val2 "// str2 )
           call zhy_convertToString(flowRatePtr(3),str3)
-          call zhy_WriteBreakPoint("zhy.log","discharge val3 "// str3 )
+          call zhy_WriteBreakPoint("zhy_nwm.log","discharge val3 "// str3 )
 
           call ESMF_LocStreamGetKey(locstream, "ESMF:Lat", farray=latArrayPtr, rc=rc)
           if (ESMF_STDERRORCHECK(rc)) return
