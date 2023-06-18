@@ -401,6 +401,7 @@ module NWM_NUOPC_Cap
           standardName=trim(NWM_FieldList(fIndex)%stdname), &
           name=trim(NWM_FieldList(fIndex)%stdname), &
           rc=rc)
+        call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ' ' // 'advertise')
         !print *, "Adding import: ", tmpName, fIndex
         if (ESMF_STDERRORCHECK(rc)) return  ! bail out
       endif
@@ -410,6 +411,7 @@ module NWM_NUOPC_Cap
           standardName=trim(NWM_FieldList(fIndex)%stdname), & 
           name=trim(NWM_FieldList(fIndex)%stdname), &
           rc=rc)
+        call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ' ' // 'advertise')
         !print *, "Adding export: ", tmpName, fIndex
         if (ESMF_STDERRORCHECK(rc)) return  ! bail out
       endif
@@ -460,6 +462,8 @@ module NWM_NUOPC_Cap
     type(ESMF_Mesh)            :: mesh     
     ! end test
 
+    !!!!!zhy, prints for debug
+    character(len=5) ::  ConnectMarker1,ConnectMarker2
 
 #ifdef DEBUG
     ! number of entrance is pet PE (i.e 767 for NWM)
@@ -520,12 +524,17 @@ module NWM_NUOPC_Cap
       endif 
 
       if (NWM_FieldList(fIndex)%adExport) then
+        call zhy_WriteBreakPoint("zhy.log",NWM_FieldList(fIndex)%stdname // ' ' // 'check connection')
         exportConnected = NUOPC_IsConnected(is%wrap%NStateExp(1), &
                          fieldName=NWM_FieldList(fIndex)%stdname)   
       else
         exportConnected = .FALSE.
       endif
 
+      call zhy_LogicalToString(exportConnected,ConnectMarker2)
+      call zhy_WriteBreakPoint("zhy.log",NWM_FieldList(fIndex)%stdname // ConnectMarker2 // ' ' // 'connect marker2')
+
+      
       if (exportConnected) then
         NWM_FieldList(fIndex)%realizedExport = .TRUE.
         field = NWM_FieldCreate(stdName=NWM_FieldList(fIndex)%stdname, &
