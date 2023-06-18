@@ -3,11 +3,11 @@
 #
 
 # Path to libraries and includes and bins
-module load intel/18.0.5.274 
-module load szip/2.1  
-module load hdf5/1.10.4 
-module load impi/2018.0.4  
-module load netcdf/4.6.1
+##module load intel/18.0.5.274 
+##module load szip/2.1  
+##module load hdf5/1.10.4 
+##module load impi/2018.0.4  
+##module load netcdf/4.6.1
 
 # /apps/intel/compilers_and_libraries_2018.3.222/linux/bin/intel64
 # module load intel/14.0.2
@@ -25,11 +25,11 @@ module load netcdf/4.6.1
 # module load impi/5.1.2.150
 
 # Environment for ESMF v8.0.0 beta snapshot 40
-module use /home/emc.nemspara/SOFT-hera/modulefiles
+##module use /home/emc.nemspara/SOFT-hera/modulefiles
 # module load intel/15.1.133 impi/5.1.1.109 netcdf/4.3.0 
 # module load impi/5.1.1.109
 #module load yaml-cpp 
-module load esmf/8.0.0bs48g
+##module load esmf/8.0.0bs48g
 
 # latest version on Here
 # module load yaml-cpp
