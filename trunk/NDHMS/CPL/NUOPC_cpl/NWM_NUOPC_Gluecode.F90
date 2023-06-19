@@ -533,8 +533,8 @@ contains
 
     allocate(farrayPtr_streamflow(loccnt))
     !farrayPtr_streamflow = -9.9
-    farrayPtr_streamflow = 100 !!!!!zhy, positive?
-    
+    !farrayPtr_streamflow = 100 !!!!!zhy, positive?
+    farrayPtr_streamflow = rt_domain(did)%qlink(1:loccnt,2)
     
     ! temp
     allocate(farrayPtr_loc(loccnt))
