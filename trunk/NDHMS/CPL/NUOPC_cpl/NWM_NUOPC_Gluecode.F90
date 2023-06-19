@@ -730,6 +730,9 @@ contains
     integer(ESMF_KIND_I4), allocatable :: link(:)
     integer :: esmf_comm, localPet, petCnt
 
+   !!!!!zhy
+    integer(ESMF_KIND_I4), allocatable :: mask(:)
+    
 
 #ifdef DEBUG
     character(ESMF_MAXSTR)  :: logMsg
@@ -801,7 +804,8 @@ contains
     allocate(lon(locElmCnt))
     allocate(lat(locElmCnt))
     allocate(link(locElmCnt))
-   
+    allocate(mask(locElmCnt))
+    
     call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCnt, &
                                mpiCommunicator=esmf_comm, rc=rc)
     if (ESMF_STDERRORCHECK(rc)) return
@@ -810,6 +814,7 @@ contains
       link(i) = rt_domain(did)%linkid(i)     ! don't use pointer here
       lon(i) = rt_domain(did)%chlon(i)
       lat(i) = rt_domain(did)%chlat(i)
+      mask(i)=0
     enddo
 
     !-------------------------------------------------------------------
@@ -832,7 +837,7 @@ contains
     ! slices per locElmtCnt
     !-------------------------------------------------------------------
     call ESMF_LocStreamAddKey(NWM_ReachStreamCreate, &
-                             keyName="Lat",          &
+                             keyName="ESMF:Lat",          &
                              farray=lat,             &
                              datacopyflag=ESMF_DATACOPY_VALUE, &
                              keyUnits="Degrees",     &
@@ -840,7 +845,7 @@ contains
     if (ESMF_STDERRORCHECK(rc)) return
 
     call ESMF_LocStreamAddKey(NWM_ReachStreamCreate, &
-                             keyName="Lon",          &
+                             keyName="ESMF:Lon",          &
                              farray=lon,             &
                              datacopyflag=ESMF_DATACOPY_VALUE, &
                              keyUnits="Degrees",     &
@@ -848,12 +853,21 @@ contains
     if (ESMF_STDERRORCHECK(rc)) return
 
     call ESMF_LocStreamAddKey(NWM_ReachStreamCreate, &
-                             keyName="link",         &
+                             keyName="ESMF:link",         &
                              farray=link,            &
                              datacopyflag=ESMF_DATACOPY_VALUE, &
                              keyLongName="Link ID (NHDFlowline_network COMID)", rc=rc)
     if (ESMF_STDERRORCHECK(rc)) return
 
+    call ESMF_LocStreamAddKey(NWM_ReachStreamCreate,&
+                              keyName="ESMF:Mask", &
+                              farray=mask,&
+                              datacopyflag=ESMF_DATACOPY_VALUE,&
+                              keyUnits="Degrees", &
+                              keyLongName="ESMF Mask",rc=rc)
+    if (ESMF_STDERRORCHECK(rc)) return
+    
+    
 #ifdef DEBUG
     call ESMF_LogWrite(MODNAME//": leaving "//METHOD, ESMF_LOGMSG_INFO)
 #endif
