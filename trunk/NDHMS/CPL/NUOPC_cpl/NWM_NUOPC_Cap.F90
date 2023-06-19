@@ -524,7 +524,7 @@ module NWM_NUOPC_Cap
       endif 
 
       if (NWM_FieldList(fIndex)%adExport) then
-        call zhy_WriteBreakPoint("zhy.log",NWM_FieldList(fIndex)%stdname // ' ' // 'check connection')
+        call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ' ' // 'check connection')
         exportConnected = NUOPC_IsConnected(is%wrap%NStateExp(1), &
                          fieldName=NWM_FieldList(fIndex)%stdname)   
       else
@@ -532,7 +532,7 @@ module NWM_NUOPC_Cap
       endif
 
       call zhy_LogicalToString(exportConnected,ConnectMarker2)
-      call zhy_WriteBreakPoint("zhy.log",NWM_FieldList(fIndex)%stdname // ConnectMarker2 // ' ' // 'connect marker2')
+      call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ConnectMarker2 // ' ' // 'connect marker2')
 
       
       if (exportConnected) then
