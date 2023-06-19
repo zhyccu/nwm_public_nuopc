@@ -532,7 +532,8 @@ contains
     if (rc /= ESMF_SUCCESS) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
     allocate(farrayPtr_streamflow(loccnt))
-    farrayPtr_streamflow = -9.9
+    !farrayPtr_streamflow = -9.9
+    farrayPtr_streamflow = 100 !!!!!zhy, positive?
     
     
     ! temp
