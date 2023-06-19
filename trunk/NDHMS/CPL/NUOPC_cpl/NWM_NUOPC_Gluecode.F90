@@ -854,7 +854,7 @@ contains
     if (ESMF_STDERRORCHECK(rc)) return
 
     call ESMF_LocStreamAddKey(NWM_ReachStreamCreate, &
-                             keyName="ESMF:link",         &
+                             keyName="link",         &
                              farray=link,            &
                              datacopyflag=ESMF_DATACOPY_VALUE, &
                              keyLongName="Link ID (NHDFlowline_network COMID)", rc=rc)
