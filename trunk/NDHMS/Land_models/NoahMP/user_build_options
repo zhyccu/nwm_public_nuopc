@@ -71,8 +71,6 @@ CPPFLAGS    = -DMPP_LAND -I ../Data_Rec $(HYDRO_D) $(SPATIAL_SOIL) $(NWM_META) $
 LIBS 	    =	
 NETCDFINC   = $(NETCDF_INC)
 NETCDFLIB   = -L$(NETCDF_LIB) -lnetcdff -lnetcdf
-NETCDF_INC = /apps/netcdf/4.6.1/intel/16.1.150/include
-NETCDF_LIB = /apps/netcdf/4.6.1/intel/16.1.150/lib
 
 # flag from HRLDAS
 COMPILERF90 = $(COMPILER90)

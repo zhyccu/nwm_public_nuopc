@@ -42,6 +42,9 @@ end type lastObsStructure
 
 integer, parameter :: did = 1
 
+real,save,allocatable,target :: schism_discharge_in(:)
+
+
 contains
 
 !===================================================================================================
@@ -81,8 +84,11 @@ find_timeslice_file=''
 ! note files are not resolved below minutes.
 tmpTimeSlice = trim(nlst(did)%timeSlicePath) // date // "." // &
                     obsResolution // 'min.usgsTimeSlice.ncdf'
-inquire(FILE=tmpTimeSlice, EXIST=fileExists)
-if (fileExists) find_timeslice_file = trim(tmpTimeSlice)
+! SDL modified
+!inquire(FILE=tmpTimeSlice, EXIST=fileExists)
+!if (fileExists) find_timeslice_file = trim(tmpTimeSlice)
+fileExists=.True.
+find_timeslice_file=trim(tmpTimeSlice)
 
 #ifdef HYDRO_D
 print*,'Ndg: timeSlice file: ', tmpTimeSlice

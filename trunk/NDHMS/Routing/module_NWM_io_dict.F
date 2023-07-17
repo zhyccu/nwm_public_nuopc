@@ -754,7 +754,9 @@ subroutine initChrtDict(chrtOutDict,diagFlag,procId)
                               -9999.0,-9999.0,-9999.0,-9999.0]
    chrtOutDict%missingReal(:) = [-9999.0,-9999.0,-9999.0,-9999.0,-9999.0,&
                                  -9999.0,-9999.0,-9999.0,-9999.0,-9999.0]
-   chrtOutDict%validMinDbl(:) = [0.0d0, -50000.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0, &
+   !chrtOutDict%validMinDbl(:) = [0.0d0, -50000.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0, &
+   ! SDL modified
+   chrtOutDict%validMinDbl(:) = [-50000.0d0, -50000.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0, &
                                   0.0d0, 0.0d0]
    chrtOutDict%validMaxDbl(:) = [50000.0d0, 50000.0d0, 50000.0d0, 50000.0d0, 50000.0d0, &
                                   20000.0d0, 20000.0d0, 20000.0d0, 50000.0d0, &

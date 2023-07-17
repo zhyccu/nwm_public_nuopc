@@ -400,8 +400,11 @@ module NWM_NUOPC_Cap
         call NUOPC_Advertise(is%wrap%NStateImp(1), &
           standardName=trim(NWM_FieldList(fIndex)%stdname), &
           name=trim(NWM_FieldList(fIndex)%stdname), &
+          ! SDL add
+          !SharePolicyGeomObject="share", &
+          !TransferOfferGeomObject="cannot provide",&
           rc=rc)
-        call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ' ' // 'advertise')
+        !call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ' ' // 'advertise')
         !print *, "Adding import: ", tmpName, fIndex
         if (ESMF_STDERRORCHECK(rc)) return  ! bail out
       endif
@@ -411,7 +414,7 @@ module NWM_NUOPC_Cap
           standardName=trim(NWM_FieldList(fIndex)%stdname), & 
           name=trim(NWM_FieldList(fIndex)%stdname), &
           rc=rc)
-        call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ' ' // 'advertise')
+        !call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ' ' // 'advertise')
         !print *, "Adding export: ", tmpName, fIndex
         if (ESMF_STDERRORCHECK(rc)) return  ! bail out
       endif
@@ -507,6 +510,7 @@ module NWM_NUOPC_Cap
       endif
 
       if (importConnected) then 
+        print*,'NWM import importConnected',NWM_FieldList(fIndex)%stdname, importConnected
         NWM_FieldList(fIndex)%realizedImport = .TRUE.
         field = NWM_FieldCreate(NWM_FieldList(fIndex)%stdname, &
                   grid=NWM_LSMGrid, locstream=NWM_ReachStream, &
@@ -524,15 +528,15 @@ module NWM_NUOPC_Cap
       endif 
 
       if (NWM_FieldList(fIndex)%adExport) then
-        call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ' ' // 'check connection')
+        !call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ' ' // 'check connection')
         exportConnected = NUOPC_IsConnected(is%wrap%NStateExp(1), &
                          fieldName=NWM_FieldList(fIndex)%stdname)   
       else
         exportConnected = .FALSE.
       endif
 
-      call zhy_LogicalToString(exportConnected,ConnectMarker2)
-      call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ConnectMarker2 // ' ' // 'connect marker2')
+      !call zhy_LogicalToString(exportConnected,ConnectMarker2)
+      !call zhy_WriteBreakPoint("zhy_nwm.log",NWM_FieldList(fIndex)%stdname // ConnectMarker2 // ' ' // 'connect marker2')
 
       
       if (exportConnected) then
@@ -879,6 +883,7 @@ subroutine CheckImport(gcomp, rc)
     type(ESMF_Field)            :: wlField
     real(ESMF_KIND_R8),pointer  :: dataWL(:)
     ! end test
+    !real(ESMF_KIND_R8) :: schism_discharge
 
 
 #ifdef DEBUG
@@ -963,6 +968,12 @@ subroutine CheckImport(gcomp, rc)
                          is%wrap%clock(1), is%wrap%hydroState, is%wrap%timeStepInt, &
                          is%wrap%NStateImp(1),is%wrap%NStateExp(1),rc)
       if(ESMF_STDERRORCHECK(rc)) return ! bail out
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add
+!      print*,'SDL test SCHISM discharge: ',schism_discharge
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     
       call ESMF_ClockAdvance(is%wrap%clock(1),rc=rc)
         if (ESMF_STDERRORCHECK(rc)) return  ! bail out

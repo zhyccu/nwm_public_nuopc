@@ -86,7 +86,8 @@ module NWM_NUOPC_Gluecode
     real(ESMF_KIND_R8), dimension(:), pointer :: farrayPtr => null()
   end type NWM_Field
 
-  type(NWM_Field),dimension(3) :: NWM_FieldList = (/ & 
+  !type(NWM_Field),dimension(3) :: NWM_FieldList = (/ & 
+  type(NWM_Field),dimension(7) :: NWM_FieldList = (/ & 
     ! NWM output - file: 201905160600.CHRTOUT_DOMAIN1
     ! Routing/module_NWM_io.F: 3415       iret = nf90_inq_varid(ftn,'streamflow',varId) 
     ! Routing/module_NWM_io.F: 335 call ReachLS_write_io(RT_DOMAIN(domainId)%QLINK(:,2),g_qlink(:,2))
@@ -189,7 +190,29 @@ module NWM_NUOPC_Gluecode
 !      stdname="sea_surface_height_above_sea_level",  units='m', &
 !      desc='waterlevel', shortname='zeta', &
 !      adImport=.TRUE.,adExport=.FALSE.), &
- 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add
+    ! For SCHISM depth-averaged velocity x-component
+    NWM_Field( & 
+      stdname="depth-averaged_x-velocity",  units='m s-1', &
+      desc='depth-averaged velocity in u component', shortname='depavg_u', &
+      adImport=.TRUE.,adExport=.FALSE.), &
+    ! For SCHISM depth-averaged velocity x-component
+    NWM_Field( & 
+      stdname="depth-averaged_y-velocity",  units='m s-1', &
+      desc='depth-averaged velocity in v component', shortname='depavg_v', &
+      adImport=.TRUE.,adExport=.FALSE.), &
+    NWM_Field( &
+      stdname="elevation_at_sea_level",  units='m', &
+      desc='elevation_at_sea_level', shortname='water_level', &
+      adImport=.TRUE.,adExport=.FALSE.), &
+    NWM_Field( &
+      stdname="bathymetry",  units='m', &
+      desc='bathymetry', shortname='bathymetry', &
+      adImport=.FALSE.,adExport=.FALSE.), &
+      !adImport=.TRUE.,adExport=.FALSE.), &
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! For testing waterlevel for now we use this
     NWM_Field( & !(19)
       stdname='water_level', units='m', &
@@ -397,9 +420,9 @@ contains
     if(ESMF_STDERRORCHECK(rc)) return ! bail out
     ! end testing
 
-    call NWM_SetFieldData(did, importState)
+    call NWM_SetFieldData(did, importState,clock)
     call noahMp_exe(itime, state)   
-    call NWM_SetFieldData(did, exportState)
+    call NWM_SetFieldData(did, exportState,clock)
 
     !print*, "BBBBBBBBBBBBBmy_id:", my_id, rt_domain(did)%qlink(itime,2) 
 
@@ -516,7 +539,30 @@ contains
     character(len=20)          :: str0,str1,str2,str3
     real(ESMF_KIND_R8)         :: num1,num2,num3
 
+    type(ESMF_LocStream) :: cross_locstream
+    type(ESMF_LocStream) :: cross_locstream2
+    !real(ESMF_KIND_R8),dimension(3) :: cross_lats=(/33.833115,33.670307,33.440487/)
+    !real(ESMF_KIND_R8),dimension(3) :: cross_lons=(/-79.04396,-79.15293,-79.24887/)
+    real(ESMF_KIND_R8),dimension(3) :: cross_lats=(/33.344401,33.670307,33.440487/)
+    real(ESMF_KIND_R8),dimension(3) :: cross_lons=(/-79.271016,-79.15293,-79.24887/)
+    integer(ESMF_KIND_I4),dimension(3):: cross_mask=(/0,0,0/)
+    real(ESMF_KIND_R8), pointer :: fptr_test_dau(:)
+    real(ESMF_KIND_R8), pointer :: fptr_test_dav(:)
+    real(ESMF_KIND_R8), pointer :: fptr_test_wl(:)
+    real(ESMF_KIND_R8), pointer :: fptr_test_bathy(:)
 
+
+! SDL test grid
+    type(ESMF_Grid) :: cross_grid
+    type(ESMF_Grid) :: cross_grid2
+    integer,parameter :: cross_numpoints=5
+    real(ESMF_KIND_R8) :: cross_lats2(cross_numpoints)
+    real(ESMF_KIND_R8) :: cross_lons2(cross_numpoints)
+    integer(ESMF_KIND_I4) :: cross_mask2(cross_numpoints)
+    type(ESMF_Mesh)                 :: mesh_test
+    type(ESMF_Mesh)                 :: mesh_test2
+    real(ESMF_KIND_R8), pointer :: lonPtr
+    real(ESMF_KIND_R8), pointer :: latPtr
 
     
 
@@ -561,36 +607,237 @@ contains
                                            datacopyflag=ESMF_DATACOPY_REFERENCE,&                   
                                            name=trim(stdName), rc=rc) 
         if(ESMF_STDERRORCHECK(rc)) return ! bail out
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add
+      CASE ('bathymetry')
+        cross_locstream2=ESMF_LocStreamCreate(name='cross_locstream2', &
+                        localCount=cross_numpoints, &
+                        indexflag=ESMF_INDEX_DELOCAL,&
+                        coordSys=ESMF_COORDSYS_SPH_DEG,&
+                        rc=rc)
+        call linspace(from=33.435429_ESMF_KIND_R8, to=33.428264_ESMF_KIND_R8, cross_array=cross_lats2)
+        call linspace(from=-79.194777_ESMF_KIND_R8, to=-79.186538_ESMF_KIND_R8, cross_array=cross_lons2)
+        cross_mask2=(/0,0,0,0,0/)
+        call ESMF_LocStreamAddKey(cross_locstream2, &
+                                  keyName="ESMF:Lat", &
+                                  farray=cross_lats2, &
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyUnits="Degrees", &
+                                  keyLongName="Latitude",rc=rc)
+        call ESMF_LocStreamAddKey(cross_locstream2,&
+                                  keyName="ESMF:Lon", &
+                                  farray=cross_lons2,&
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyUnits="Degrees", &
+                                  keyLongName="Longitude",rc=rc)
+        call ESMF_LocStreamAddKey(cross_locstream2,&
+                                  keyName="ESMF:Mask", &
+                                  farray=cross_mask2,&
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyLongName="ESMF Mask",rc=rc)
+        allocate(fptr_test_bathy(cross_numpoints))
+        !fptr_test_wl=0
+        NWM_FieldCreate = ESMF_FieldCreate(cross_locstream2, &
+                                 fptr_test_bathy, &
+                                 ESMF_INDEX_DELOCAL,&
+                                 datacopyflag=ESMF_DATACOPY_REFERENCE, &
+                                 name="bathymetry", rc=rc)
+         
+
+
+      CASE ('elevation_at_sea_level')
+        cross_locstream2=ESMF_LocStreamCreate(name='cross_locstream2', &
+                        localCount=cross_numpoints, &
+                        indexflag=ESMF_INDEX_DELOCAL,&
+                        coordSys=ESMF_COORDSYS_SPH_DEG,&
+                        rc=rc) 
+        call linspace(from=33.435429_ESMF_KIND_R8, to=33.428264_ESMF_KIND_R8, cross_array=cross_lats2)
+        call linspace(from=-79.194777_ESMF_KIND_R8, to=-79.186538_ESMF_KIND_R8, cross_array=cross_lons2)
+        cross_mask2=(/0,0,0,0,0/)
+        call ESMF_LocStreamAddKey(cross_locstream2, &
+                                  keyName="ESMF:Lat", &
+                                  farray=cross_lats2, &
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyUnits="Degrees", &
+                                  keyLongName="Latitude",rc=rc) 
+        call ESMF_LocStreamAddKey(cross_locstream2,&
+                                  keyName="ESMF:Lon", &
+                                  farray=cross_lons2,&
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyUnits="Degrees", &
+                                  keyLongName="Longitude",rc=rc)
+        call ESMF_LocStreamAddKey(cross_locstream2,&
+                                  keyName="ESMF:Mask", &
+                                  farray=cross_mask2,&
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyLongName="ESMF Mask",rc=rc)
+        allocate(fptr_test_wl(cross_numpoints))
+        !fptr_test_wl=0
+        NWM_FieldCreate = ESMF_FieldCreate(cross_locstream2, &
+                                 fptr_test_wl, &
+                                 ESMF_INDEX_DELOCAL,&
+                                 datacopyflag=ESMF_DATACOPY_REFERENCE, &
+                                 name="elevation_at_sea_level", rc=rc)
+        !fptr_test_wl=10
+        !deallocate(fptr_test_wl) 
+
+
+
+      CASE ('depth-averaged_x-velocity')
+        cross_locstream=ESMF_LocStreamCreate(name='cross_locstream', &
+                        localCount=cross_numpoints, &
+                        indexflag=ESMF_INDEX_DELOCAL,&
+                        coordSys=ESMF_COORDSYS_SPH_DEG,&
+                        rc=rc) 
+        call linspace(from=33.435429_ESMF_KIND_R8, to=33.428264_ESMF_KIND_R8, cross_array=cross_lats2)
+        call linspace(from=-79.194777_ESMF_KIND_R8, to=-79.186538_ESMF_KIND_R8, cross_array=cross_lons2)
+        print*,'SDL test cross_lats2',cross_lats2
+        print*,'SDL test cross_lons2',cross_lons2
+        !cross_mask2=(/0,0,0,0,0,0,0,0,0,0/) 
+        cross_mask2=(/0,0,0,0,0/) 
+        call ESMF_LocStreamAddKey(cross_locstream, &
+                                  keyName="ESMF:Lat", &
+                                  farray=cross_lats2, &
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyUnits="Degrees", &
+                                  keyLongName="Latitude",rc=rc) 
+        call ESMF_LocStreamAddKey(cross_locstream,&
+                                  keyName="ESMF:Lon", &
+                                  farray=cross_lons2,&
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyUnits="Degrees", &
+                                  keyLongName="Longitude",rc=rc)
+        call ESMF_LocStreamAddKey(cross_locstream,&
+                                  keyName="ESMF:Mask", &
+                                  farray=cross_mask2,&
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyLongName="ESMF Mask",rc=rc)
+        allocate(fptr_test_dau(cross_numpoints))
+        !fptr_test_dau=0
+        !allocate(fptr_test_dau(3))
+        !fptr_test_dau=0
+        NWM_FieldCreate = ESMF_FieldCreate(cross_locstream, &
+                                 fptr_test_dau, &
+                                 ESMF_INDEX_DELOCAL,&
+                                 datacopyflag=ESMF_DATACOPY_REFERENCE, &
+                                 name="depth-averaged_x-velocity", rc=rc)
         
-        ! for testing
-        !call ESMF_FieldGet(NWM_FieldCreate, locstream=locstream2, vm=vm, rc=rc)
+      CASE ('depth-averaged_x-velocity-mesh')
+      !  call linspace(from=33.435429, to=33.428264, array=cross_lats2)
+      !  call linspace(from=-79.194777, to=-79.186538, array=cross_lons2)
+        cross_grid=ESMF_GridCreateNoPeriDimUfrm(maxIndex=(/10, 10/), &
+                   minCornerCoord=(/-79.195_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/), &
+                   maxCornerCoord=(/-79.186538_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/), &
+                   coordSys=ESMF_COORDSYS_SPH_DEG, &
+                   staggerLocList=(/ESMF_STAGGERLOC_CORNER/), rc=rc)
+        !call ESMF_GridGetCoord(cross_grid, coordDim=1, farray=lonPtr, rc=rc)
+        !print*,'NWM lonPtr',lonPtr
+        !call ESMF_GridGetCoord(cross_grid, coordDim=2, farray=latPtr, rc=rc)
+        !print*,'NWM lonPtr',lonPtr
+        
+        mesh_test = ESMF_MeshCreate(grid=cross_grid, rc=rc)
+        if(ESMF_STDERRORCHECK(rc)) return ! bail out
 
-        ! get the vm of this field
-        !call ESMF_VMGet(vm=vm, localPet=localPet, petCount=petCnt, &
-        !                           mpiCommunicator=esmf_comm, rc=rc)
+        ! get mesh dimenssion
+        call ESMF_MeshGet(mesh_test, spatialDim=dimCount, &
+                  numOwnedElements=numOwnedElements, &
+                   numOwnedNodes=numOwnedNodes, rc=rc)
+        if(ESMF_STDERRORCHECK(rc)) return ! bail out
+    
+        print*, 'SCHISM numOwnedNodes',numOwnedNodes
 
-        ! fill fields with values for export after physic calculations
-        !call ESMF_LocStreamGetKey(locstream2, "Lat", farray=latArrayPtr, rc=rc)
-        !if (ESMF_STDERRORCHECK(rc)) return
+        allocate(fptr_test_dau(numOwnedNodes))
+        ! importable field: water level
+        !NWM_FieldCreate = ESMF_FieldCreate(name="depth-averaged_x-velocity",&
+        !                   mesh=mesh_test, &
+        !                   farrayPtr=fptr_test_dau, &
+        !                   datacopyflag=ESMF_DATACOPY_REFERENCE,&
+        !                   meshloc=ESMF_MESHLOC_NODE, rc=rc)
+        NWM_FieldCreate=ESMF_FieldCreate(mesh_test,&
+                        name="depth-averaged_x-velocity",&
+                        typekind=ESMF_TYPEKIND_R8,&
+                        meshloc=ESMF_MESHLOC_NODE, rc=rc)
+                        !meshloc=ESMF_MESHLOC_ELEMENT,&
+                        !ungriddedLbound=(/1/), ungriddedUbound=(/4/), rc=rc)
+      CASE ('depth-averaged_y-velocity-mesh')
+        cross_grid2=ESMF_GridCreateNoPeriDimUfrm(maxIndex=(/10, 10/), &
+                   minCornerCoord=(/-79.195_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/), &
+                   maxCornerCoord=(/-79.186538_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/), &
+                   coordSys=ESMF_COORDSYS_SPH_DEG, &
+                   staggerLocList=(/ESMF_STAGGERLOC_CORNER/), rc=rc)
+        mesh_test2 = ESMF_MeshCreate(grid=cross_grid2, rc=rc)
+        if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        call ESMF_MeshGet(mesh_test2, spatialDim=dimCount, &
+                  numOwnedElements=numOwnedElements, &
+                   numOwnedNodes=numOwnedNodes, rc=rc)
+        if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        NWM_FieldCreate=ESMF_FieldCreate(mesh_test2,&
+                        name="depth-averaged_y-velocity",&
+                        typekind=ESMF_TYPEKIND_R8,&
+                        meshloc=ESMF_MESHLOC_NODE, rc=rc)
+      CASE ('depth-averaged_y-velocity')
+        cross_locstream=ESMF_LocStreamCreate(name='cross_locstream', &
+                        localCount=cross_numpoints, &
+                        indexflag=ESMF_INDEX_DELOCAL,&
+                        coordSys=ESMF_COORDSYS_SPH_DEG,&
+                        rc=rc) 
+        call linspace(from=33.435429_ESMF_KIND_R8, to=33.428264_ESMF_KIND_R8, cross_array=cross_lats2)
+        call linspace(from=-79.194777_ESMF_KIND_R8, to=-79.186538_ESMF_KIND_R8, cross_array=cross_lons2)
+        !print*,'SDL test cross_lats2',cross_lats2
+        !print*,'SDL test cross_lons2',cross_lons2
+        !cross_mask2=(/0,0,0,0,0,0,0,0,0,0/) 
+        cross_mask2=(/0,0,0,0,0/) 
+        call ESMF_LocStreamAddKey(cross_locstream, &
+                                  keyName="ESMF:Lat", &
+                                  farray=cross_lats2, &
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyUnits="Degrees", &
+                                  keyLongName="Latitude",rc=rc) 
+        call ESMF_LocStreamAddKey(cross_locstream,&
+                                  keyName="ESMF:Lon", &
+                                  farray=cross_lons2,&
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyUnits="Degrees", &
+                                  keyLongName="Longitude",rc=rc)
+        call ESMF_LocStreamAddKey(cross_locstream,&
+                                  keyName="ESMF:Mask", &
+                                  farray=cross_mask2,&
+                                  datacopyflag=ESMF_DATACOPY_VALUE,&
+                                  keyLongName="ESMF Mask",rc=rc)
+        allocate(fptr_test_dav(cross_numpoints))
+        NWM_FieldCreate = ESMF_FieldCreate(cross_locstream, &
+                                 fptr_test_dav, &
+                                 ESMF_INDEX_DELOCAL,&
+                                 datacopyflag=ESMF_DATACOPY_REFERENCE, &
+                                 name="depth-averaged_y-velocity", rc=rc)
 
-        !call ESMF_LocStreamGetKey(locstream2, "Lon", farray=lonArrayPtr, rc=rc)
-        !if (ESMF_STDERRORCHECK(rc)) return
 
-        !call ESMF_LocStreamGetKey(locstream2, "link", farray=linkArrayPtr, rc=rc)
-        !if (ESMF_STDERRORCHECK(rc)) return
 
-        !  do j=0,numprocs
-        !    if (my_id == j) then
-        !      print*, "pet :     ", my_id
-        !      print*, "link:     ", linkArrayPtr
-        !      print*, "lon:      ", lonArrayPtr
-        !      print*, "lat:      ", latArrayPtr
-        !    endif
-        !    call MPI_Barrier(esmf_comm, rc)
-        !    if(ESMF_STDERRORCHECK(rc)) return
-        !  enddo
 
-        ! end for testing
+
+
+
+
+
+
+      CASE ('depth-averaged_x-velocity-grid')
+        !NWM_FieldCreate = ESMF_FieldCreate(grid=grid, &
+        !                  typekind=ESMF_TYPEKIND_R8, &
+        !                  indexflag=ESMF_INDEX_DELOCAL, &
+        !                  name="depth-averaged_x-velocity", rc=rc)
+        !if(ESMF_STDERRORCHECK(rc)) return ! bail out
+        !cross_grid=ESMF_GridCreateNoPeriDimUfrm(maxIndex=(/10, 10/), &
+        !           minCornerCoord=(/-79.195_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/), &
+        !           maxCornerCoord=(/-79.186538_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/), &
+        !           coordSys=ESMF_COORDSYS_SPH_DEG, &
+        !           staggerLocList=(/ESMF_STAGGERLOC_CENTER/), rc=rc)
+        !NWM_FieldCreate = ESMF_FieldCreate(grid=cross_grid, &
+        !                  typekind=ESMF_TYPEKIND_R8, &
+        !                  indexflag=ESMF_INDEX_DELOCAL, &
+        !                  name="depth-averaged_x-velocity", rc=rc)
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       CASE ('surface_runoff')
         NWM_FieldCreate = ESMF_FieldCreate(grid=grid, &
@@ -864,7 +1111,6 @@ contains
                               keyName="ESMF:Mask", &
                               farray=mask,&
                               datacopyflag=ESMF_DATACOPY_VALUE,&
-                              keyUnits="Degrees", &
                               keyLongName="ESMF Mask",rc=rc)
     if (ESMF_STDERRORCHECK(rc)) return
     
@@ -1136,6 +1382,13 @@ contains
        xlat_corner_name = ""
        xlon_corner_name = ""
     endif
+
+    !print*,'NWM corner lat name',nlst(did)%geo_static_flnm
+    !print*,'NWM corner lon name',xlon_corner_name
+    !xlat_corner_name = "XLAT_U"
+    !xlon_corner_name = "XLONG_U"
+
+
 
     if (trim(xlat_corner_name) /= "") then
       ! Get Local Latitude (lat)
@@ -1784,9 +2037,15 @@ contains
 #undef METHOD
 #define METHOD "NWM_SetFieldData"
 
-  subroutine NWM_SetFieldData(did, activeState)
+  subroutine NWM_SetFieldData(did, activeState, clock)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add
+    use module_nudging_io, only: schism_discharge_in
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer, intent(in)                       :: did
     type(ESMF_State)                          :: activeState
+    type(ESMF_Clock),intent(in)             :: clock
 
     ! local variables
     integer :: i, j, k, esmf_comm, localPet, petCnt, rc, localElmCnt
@@ -1823,6 +2082,42 @@ contains
 
     !!!!!zhy, prints
     character(len=20)          :: str0,str1,str2,str3
+! SDL add
+    real(ESMF_KIND_R8),dimension(:), pointer    :: schism_dau_ptr => null()
+    real(ESMF_KIND_R8),dimension(:), pointer    :: schism_dav_ptr => null()
+    real(ESMF_KIND_R8),dimension(:), pointer    :: schism_wl_ptr => null()
+    real(ESMF_KIND_R8),dimension(:), pointer    :: schism_bathy_ptr => null()
+
+    type(ESMF_Field) :: itemField_dau
+    type(ESMF_Field) :: itemField_dav
+    type(ESMF_Field) :: itemField_wl
+    type(ESMF_Field) :: itemField_bathy
+
+    integer,parameter :: cross_numpoints=5   
+    real(ESMF_KIND_R8) :: cross_lats(cross_numpoints)    
+    real(ESMF_KIND_R8) :: cross_lons(cross_numpoints)
+    real(ESMF_KIND_R8) :: cross_lat_start1, cross_lat_end1
+    real(ESMF_KIND_R8) :: cross_lon_start1, cross_lon_end1
+
+    real(ESMF_KIND_R8) :: cross_a1, cross_b1
+    real(ESMF_KIND_R8) :: schism_dau_new(cross_numpoints)
+    real(ESMF_KIND_R8) :: schism_dav_new(cross_numpoints)
+   
+    integer :: ii
+
+    real(ESMF_KIND_R8) :: tmpdistance
+    real(ESMF_KIND_R8), allocatable :: distance(:)
+    real(ESMF_KIND_R8), allocatable :: distance_new(:)
+    real(ESMF_KIND_R8), allocatable :: schism_discharge_tmp(:)
+    real(ESMF_KIND_R8), allocatable :: schism_discharge(:)
+    logical :: exist
+    type(ESMF_Time)             :: currTime
+    type(ESMF_TimeInterval)     :: timeStep
+    integer(ESMF_KIND_I4) :: year  
+    integer :: month
+    integer :: day  
+    integer(ESMF_KIND_I4) :: hour, minute, second
+    type(ESMF_StateIntent_Flag) :: stateintent
 
 
 #ifdef DEBUG
@@ -1899,7 +2194,6 @@ contains
        ! if(ESMF_STDERRORCHECK(rc)) return ! bail out
 
         CASE ('discharge')
-
           ! Get a DE-local Fortran array pointer from a Field
           call ESMF_FieldGet(itemField, farrayPtr=flowRatePtr, rc=rc)
           if (ESMF_STDERRORCHECK(rc)) return
@@ -1916,15 +2210,6 @@ contains
           !localElmCnt = size(flowRatePtr)
           flowRatePtr = rt_domain(did)%qlink(1:localElmCnt,2)
 
-          print *, size(rt_domain(did)%qlink)
-
-          call zhy_convertToString(flowRatePtr(1),str1)
-          call zhy_WriteBreakPoint("zhy_nwm.log","discharge val1 "// str1 )
-          call zhy_convertToString(flowRatePtr(2),str2)
-          call zhy_WriteBreakPoint("zhy_nwm.log","discharge val2 "// str2 )
-          call zhy_convertToString(flowRatePtr(3),str3)
-          call zhy_WriteBreakPoint("zhy_nwm.log","discharge val3 "// str3 )
-
           call ESMF_LocStreamGetKey(locstream, "ESMF:Lat", farray=latArrayPtr, rc=rc)
           if (ESMF_STDERRORCHECK(rc)) return
           call ESMF_LocStreamGetKey(locstream, "ESMF:Lon", farray=lonArrayPtr, rc=rc)
@@ -1933,16 +2218,31 @@ contains
           if (ESMF_STDERRORCHECK(rc)) return
           call ESMF_LocStreamGetKey(locstream, "ESMF:Mask", farray=linkArrayPtr, rc=rc)
           if (ESMF_STDERRORCHECK(rc)) return
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add to get schism data for calculating river discharge
+        CASE ('depth-averaged_x-velocity')
+          call ESMF_StateGet(activeState, itemname="depth-averaged_x-velocity", field=itemField_dau, rc=rc)
+          call ESMF_FieldGet(itemField_dau, farrayPtr=schism_dau_ptr, rc=rc)
+          !print*,'SDL test NWM SCHISM u_x: ',schism_dau_ptr
 
+        CASE ('depth-averaged_y-velocity')
+          call ESMF_StateGet(activeState, itemname="depth-averaged_y-velocity", field=itemField_dav, rc=rc)
+          call ESMF_FieldGet(itemField_dav, farrayPtr=schism_dav_ptr, rc=rc)
+          !print*,'SDL test NWM SCHISM v_y: ',schism_dav_ptr
 
+        CASE ('elevation_at_sea_level')
+          call ESMF_StateGet(activeState, itemname="elevation_at_sea_level", field=itemField_wl, rc=rc)
+          call ESMF_FieldGet(itemField_wl, farrayPtr=schism_wl_ptr, rc=rc)
+          !print*,'SDL test NWM SCHISM wl: ',schism_wl_ptr
+          call ESMF_FieldGet(itemField_wl, vm=vm, rc=rc)
+          call ESMF_VMGet(vm, localPet=localPet, mpiCommunicator=esmf_comm, rc=rc)
 
-
-
-
-
-
-
-          
+        CASE ('bathymetry')
+          call ESMF_StateGet(activeState, itemname="bathymetry", field=itemField_bathy, rc=rc)
+          call ESMF_FieldGet(itemField_bathy, farrayPtr=schism_bathy_ptr, rc=rc)
+          !print*,'SDL test NWM SCHISM bathy: ',schism_bathy_ptr
+          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         CASE ('water_level')
           call ESMF_StateGet(activeState, itemName="water_level", field=itemField, rc=rc)
           if (ESMF_STDERRORCHECK(rc)) return
@@ -2027,6 +2327,88 @@ contains
       END SELECT
     enddo
     deallocate(itemNames)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add
+    call ESMF_StateGet(activeState, stateintent=stateintent, rc=rc)
+    if (stateintent==ESMF_STATEINTENT_EXPORT) then
+      deallocate(schism_discharge_in)
+    endif
+    if (stateintent==ESMF_STATEINTENT_IMPORT) then 
+      print*,'SDL test NWM SCHISM u_x: ',schism_dau_ptr
+      print*,'SDL test NWM SCHISM v_y: ',schism_dav_ptr
+      print*,'SDL test NWM SCHISM wl: ',schism_wl_ptr
+      !print*,'SDL test NWM SCHISM bathy: ',schism_bathy_ptr
+      ! Calculating river discharge
+      cross_lat_start1=33.435429_ESMF_KIND_R8
+      cross_lat_end1=33.428264_ESMF_KIND_R8
+      cross_lon_start1=-79.194777_ESMF_KIND_R8
+      cross_lon_end1=-79.186538_ESMF_KIND_R8
+      call linspace(from=cross_lat_start1, to=cross_lat_end1, cross_array=cross_lats)
+      call linspace(from=cross_lon_start1, to=cross_lon_end1, cross_array=cross_lons)
+      cross_a1=(cross_lat_start1-cross_lat_end1)/(cross_lon_start1-cross_lon_end1)
+      cross_b1=(cross_lon_start1*cross_lat_end1-cross_lat_start1*cross_lon_end1)/(cross_lon_start1-cross_lon_end1)
+      schism_dau_new=schism_dau_ptr*cos(atan(cross_a1))+schism_dav_ptr*sin(atan(cross_a1))
+      schism_dav_new=schism_dav_ptr*cos(atan(cross_a1))-schism_dau_ptr*sin(atan(cross_a1))
+      print*,'SDL test SCHISM cross_u_x: ',schism_dau_new
+      print*,'SDL test SCHISM cross_v_y: ',schism_dav_new
+
+      allocate(distance(size(cross_lats)-1))
+      allocate(distance_new(size(cross_lats)-2))
+      allocate(schism_discharge_tmp(size(cross_lats)-2))
+      allocate(schism_discharge(1))
+
+      do ii=1,size(cross_lats)-1
+        call distance_calculator(cross_lats(ii),cross_lats(ii+1), &
+                                 cross_lons(ii),cross_lons(ii+1), &
+                                 tmpdistance)
+        distance(ii)=tmpdistance
+      enddo 
+      print*,'SDL test SCHISM distance: ',distance
+
+      do ii=1,size(cross_lats)-2
+        distance_new(ii)=distance(ii)/2+distance(ii+1)/2
+      enddo 
+
+      do ii=1,size(cross_lats)-2
+        schism_discharge_tmp(ii)=distance_new(ii)*schism_wl_ptr(ii+1)*schism_dav_new(ii+1)
+      enddo
+
+      schism_discharge=0
+      do ii=1,size(cross_lats)-2
+        schism_discharge=schism_discharge+schism_discharge_tmp(ii)
+      enddo
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      !print*,'SDL test SCHISM discharge: ',schism_discharge
+      ! SDL for NWM nudging
+      allocate(schism_discharge_in(1))
+      schism_discharge_in=-schism_discharge
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      call ESMF_ClockGet(clock, currTime=currTime, timeStep=timeStep, rc=rc)
+      call ESMF_TimeGet(currTime, yy=year, mm=month, dd=day, h=hour, m=minute, s=second)
+      !call ESMF_StateGet(activeState, stateintent=stateintent, rc=rc)
+      !print*,'SDL statetype',stateintent
+
+      !inquire(file='SCHISM-TO-NWM-Discharge.txt',exist=exist)
+      if ((localPet==1) .AND. (minute==0) .AND. (second==0)) then
+        inquire(file='SCHISM-TO-NWM-Discharge.txt',exist=exist)
+        if (exist) then
+          open(unit=2222,file='SCHISM-TO-NWM-Discharge.txt',status='old',position='append')
+        else
+          open(unit=2222,file='SCHISM-TO-NWM-Discharge.txt',status='new')
+        endif
+        write(2222, '(I4,I2.2,I2.2,I2.2,I2.2,I2.2,F20.5)') year, month, day, hour, minute, second, schism_discharge
+        close(2222)
+      endif
+    
+      deallocate(distance)
+      deallocate(distance_new)
+      deallocate(schism_discharge_tmp)
+      deallocate(schism_discharge)
+    endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #ifdef DEBUG
     call ESMF_LogWrite(MODNAME//": leaving "//METHOD, ESMF_LOGMSG_INFO)
@@ -2234,6 +2616,51 @@ contains
 #endif
 
   end subroutine
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add
+  subroutine linspace(from, to, cross_array)
+    real(ESMF_KIND_R8), intent(in) :: from, to
+    real(ESMF_KIND_R8), intent(out) :: cross_array(:)
+    real(ESMF_KIND_R8) :: cross_range
+    integer :: n, i
+    n = size(cross_array)
+    cross_range = to - from
+
+    if (n == 0) return
+
+    if (n == 1) then
+        cross_array(1) = from
+        return
+    end if
+
+
+    do i=1, n
+        cross_array(i) = from + cross_range * (i - 1) / (n - 1)
+    end do
+  end subroutine
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add, calculate distance between two points. Points are based on lat and
+! lon
+  subroutine distance_calculator(lat1_d,lat2_d,lon1_d,lon2_d,distance)
+    real(ESMF_KIND_R8), intent(in) :: lat1_d, lat2_d, lon1_d, lon2_d
+    real(ESMF_KIND_R8), intent(out) :: distance
+    real(ESMF_KIND_R8), parameter :: R=6371.0
+    real(ESMF_KIND_R8), parameter :: deg_to_rad=3.141592653589793238/180.0
+    real(ESMF_KIND_R8) :: a, c
+
+    real(ESMF_KIND_R8) :: lat1, lat2, lon1, lon2
+
+    lat1=lat1_d*deg_to_rad
+    lat2=lat2_d*deg_to_rad
+    lon1=lon1_d*deg_to_rad
+    lon2=lon2_d*deg_to_rad
+    
+    a = sin((lat2-lat1)/2)**2 + cos(lat1) * cos(lat2) * sin((lon2-lon1)/2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    distance=R*c*1000 ! km to meter
+  end subroutine
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !-----------------------------------------------------------------------------
 

@@ -142,13 +142,16 @@ real, allocatable, dimension(:) :: t0Discharge
 logical :: nudgeThisLsmTimeStep
 
 !! JLM: these options are hardcoded/hardwired for now, evnt go in namelist
-integer,            parameter :: obsResolutionInt = 15 ! minutes
+! SDL modify
+!integer,            parameter :: obsResolutionInt = 15 ! minutes
+integer,            parameter :: obsResolutionInt = 60 ! minutes
 real,               parameter :: obsCheckFreq     = 90 ! minutes
 logical,            parameter :: filterObsToDom   = .TRUE.
 character(len=15),  parameter :: missingGage = '               '
 logical,            parameter :: nudgeWAdvance = .FALSE.
 character(len=4),   parameter :: nudgingClockType = 'wall'
-logical,            parameter :: sanityQcDischarge = .true.
+!logical,            parameter :: sanityQcDischarge = .true.
+logical,            parameter :: sanityQcDischarge = .false.
 logical,            parameter :: readTimesliceErrFatal = .false.
 logical,            parameter :: futureLastObsFatal = .true.
 logical,            parameter :: futureLastObsZero  = .false.
@@ -394,6 +397,8 @@ if (nlst(did)%channel_option .eq. 1 .or. &
 
       allocate(nodeGageTmp%usgsId(nLinksL))
       call read_reach_gage_collocation(nodeGageTmp%usgsId)
+! SDL test
+      !print*,'SDL NWM gageid',nodeGageTmp%usgsId
 
       nGagesDomain=0
       !check: nLinksL .eq. size(nodeGageTmp%usgsId)
@@ -410,6 +415,9 @@ if (nlst(did)%channel_option .eq. 1 .or. &
          nodeGageStr%nodeId = pack((/(ii, ii=1,nLinksL)/), mask=nodeGageTmp%usgsId .ne. missingGage)
       end if
       deallocate(nodeGageTmp%usgsId)
+! SDL test
+      print*,'SDL NWM gageid: ',nodeGageStr%usgsId
+      print*,'SDL NWM nodeid: ',nodeGageStr%nodeId
 
 #ifdef HYDRO_D
       print*,'Ndg: nGagesDomain:',nGagesDomain
@@ -701,7 +709,9 @@ lsmDt = nlst(did)%dt
 
 maxTau = maxval(nudgingParamsStr%tau) ! This is fixed as tau does not change for a cycle.
 write(obsResolution, '(i0.2)') obsResolutionInt
+! SDL modified
 nObsTimes  = 2*ceiling(maxTau/obsResolutionInt) + ceiling(real(lsmDt)/(60.*obsResolutionInt)) + 1
+!nObsTimes  = 2*ceiling(maxTau/obsResolutionInt) + ceiling(real(lsmDt)/(60.*obsResolutionInt))
 
 #ifdef HYDRO_D
 #ifdef MPP_LAND
@@ -1320,6 +1330,10 @@ use module_nudging_io,    only: find_timeslice_file, &
                                 read_timeslice_file, &
                                 get_netcdf_dim
 
+! SDL add
+use module_nudging_io,    only: schism_discharge_in
+
+
 implicit none
 integer, intent(in) :: structIndex
 
@@ -1359,9 +1373,18 @@ print*,'Ndg: timeSliceFile:',trim(fileName), my_id
 if(flushAll) flush(flushUnit)
 #endif
 
-nGages=get_netcdf_dim(fileName, 'stationIdInd',   &
-                      'timeslice_file_to_struct', &
-                      readTimesliceErrFatal       )
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL test, modified
+!print*,'SDL test dim nGages: ',nGages
+
+
+!nGages=get_netcdf_dim(fileName, 'stationIdInd',   &
+!                      'timeslice_file_to_struct', &
+!                      readTimesliceErrFatal       )
+
+nGages=1 ! need to modiftied by yourself
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! If the dimension comes back zero, there's an issue with the file.
 ! If the error is not fatal, then handle the file as missing & print an
 ! additional message
@@ -1382,29 +1405,59 @@ if(filterObsToDom) then
    allocate(gageQCIn(nGages))
    allocate(gageDischargeIn(nGages))
 
-   call read_timeslice_file(fileName,             &
-                            sanityQcDischarge,    &
-                            timeIn,               &
-                            updateTimeIn,         &
-                            sliceResoIn,          &
-                            usgsIdIn,             &
-                            gageTimeIn,           &
-                            gageQCIn,             &
-                            gageDischargeIn,      &
-                            readTimesliceErrFatal,&
-                            errStatus             )
+   print*,'SDL test nGages: ',nGages
+   print*,'SDL test fileName: ',fileName
+   print*,'SDL test sanityQcDischarge: ',sanityQcDischarge
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL modified
+!   call read_timeslice_file(fileName,             &
+!                            sanityQcDischarge,    &
+!                            timeIn,               &
+!                            updateTimeIn,         &
+!                            sliceResoIn,          &
+!                            usgsIdIn,             &
+!                            gageTimeIn,           &
+!                            gageQCIn,             &
+!                            gageDischargeIn,      &
+!                            readTimesliceErrFatal,&
+!                            errStatus             )
+! SDL add
+   !timeIn  !comment out
+   updateTimeIn="2023-07-12_14:40:00"
+   !sliceResoIn=60 !comment out
+   usgsIdIn='111111111111111'
+   gageTimeIn=thisTime
 
-   if(errStatus .ne. 0) then
-      obsTimeStr(structIndex)%updateTime='no file'
-      print*,'Ndg: WARNING: issues with skipped timeSliceFile : ', thisTime
-      deallocate(usgsIdIn, gageTimeIn, gageQCIn, gageDischargeIn)
-      return
-   end if
+   gageQCIn=1
+   !where(schism_discharge_in .le. 0.000) gageQCIn=0
+   !if (schism_discharge_in .le. 0) then
+   !  gageQCIn=0
+   !else
+   !  gageQCIn=1
+   !endif
+   !gageDischargeIn=50
+   !gageDischargeIn=-schism_discharge_in ! negative value
 
-   if(timeIn .NE. obsTimeStr(structIndex)%time) &
-        call hydro_stop('timeslice_file_to_struct: file time does not match structure')
-   if(obsResolution .NE. sliceResoIn) &
-        call hydro_stop('timeslice_file_to_struct: model and file timeslice resolution do not match.')
+
+
+   gageDischargeIn=schism_discharge_in ! positive value
+   !errStatus !comment out
+
+   print*,'SDL test schism_discharge_in',schism_discharge_in
+
+
+   !if(errStatus .ne. 0) then
+   !   obsTimeStr(structIndex)%updateTime='no file'
+   !   print*,'Ndg: WARNING: issues with skipped timeSliceFile : ', thisTime
+   !   deallocate(usgsIdIn, gageTimeIn, gageQCIn, gageDischargeIn)
+   !   return
+   !end if
+
+   !if(timeIn .NE. obsTimeStr(structIndex)%time) &
+   !     call hydro_stop('timeslice_file_to_struct: file time does not match structure')
+   !if(obsResolution .NE. sliceResoIn) &
+   !     call hydro_stop('timeslice_file_to_struct: model and file timeslice resolution do not match.')
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    !save when the file was updated
    obsTimeStr(structIndex)%updateTime = updateTimeIn
 
@@ -1450,6 +1503,12 @@ else ! dont filterObsToDom
    allocate(obsTimeStr(structIndex)%obsStr(nGages))
    obsTimeStr(structIndex)%obsStr%obsStaticInd = 0
    obsTimeStr(structIndex)%obsStr%innov = -9999
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL modified
+   print*,'SDL test2 nGages: ',nGages
+   print*,'SDL test2 fileName: ',fileName
+   print*,'SDL test2 sanityQcDischarge: ',sanityQcDischarge
 
    call read_timeslice_file(fileName,                                       &
                             sanityQcDischarge,                              &
@@ -1539,6 +1598,9 @@ if(my_id .eq. io_id) then
    allocate(theMask(size(nodeGageStr%usgsId)))
    ! loop over the entire structure and solve %obsCellind
    nudgeSpatial=.false.
+
+   print*,'SDL test size(obsStaticStr%usgsId)',size(obsStaticStr%usgsId)
+
    do ll=1,size(obsStaticStr%usgsId)
       !! this will always have a match b/c all
       !! obsStaticStr%usgsId=nudgingParamsStr$usgsId
@@ -1547,6 +1609,10 @@ if(my_id .eq. io_id) then
       theMask = nodeGageStr%usgsId .eq. obsStaticStr(ll)%usgsId
       !! This is a double for loop... thanks to whUniLoop
       obsStaticStr(ll)%obsCellInd = nodeGageStr%nodeId(whUniLoop(theMask))
+! SDL test
+      print*,'SDL test R',obsStaticStr(ll)%R
+      print*,'SDL test obsCellInd',chanlen_image0(obsStaticStr(ll)%obsCellInd)/2
+
       if(obsStaticStr(ll)%R .ge. chanlen_image0(obsStaticStr(ll)%obsCellInd)/2) &
            nudgeSpatial=.true.
    end do
@@ -1929,7 +1995,9 @@ do gg=0,nGo-1
    if(startDist + newDist .gt. radius) return  ! strictly greater than.
    allDists(lastInd+1) = startDist + newDist
    lastInd = lastInd+1
-   if(lastInd .ge. 10001) &
+! SDL modified
+   #if(lastInd .ge. 10001) &
+   if(lastInd .ge. 5000001) &
         call hydro_stop('distance_along_channel: hardwired 10000 variable size exceeded. FIX.')
    call distance_along_channel( &
         direction,              &  ! the traversal structure, pass by reference.
@@ -2751,8 +2819,12 @@ else if (temporalPersistence) then
    !! Ensure the nudge does not make the streamflow less than zero.
    !! This is particularly important if persistBias
    !! Is this OK as ZERO?? Musk-cunge allows it (in theory).
+
+! SDL modifid
+
    if (discharge(obsInd)+nudge_term_link .lt. zero) then
-      nudge_term_link = zero - discharge(obsInd) + smallestNudge
+      ! SDL comment out
+      !nudge_term_link = zero - discharge(obsInd) + smallestNudge
       !print*,'JLM setting nudge_term_link + observed discharge to zero (or very small)', prstGageId
    endif
 
