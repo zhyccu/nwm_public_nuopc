@@ -1425,10 +1425,10 @@ if(filterObsToDom) then
    !timeIn  !comment out
    updateTimeIn="2023-07-12_14:40:00"
    !sliceResoIn=60 !comment out
-   usgsIdIn='111111111111111'
-   gageTimeIn=thisTime
+   usgsIdIn=(/'111111111111112','111111111111111'/)
+   gageTimeIn=(/thisTime,thisTime/)
 
-   gageQCIn=1
+   gageQCIn=(/0.1,1.0/)
    !where(schism_discharge_in .le. 0.000) gageQCIn=0
    !if (schism_discharge_in .le. 0) then
    !  gageQCIn=0
@@ -1438,14 +1438,13 @@ if(filterObsToDom) then
    !gageDischargeIn=50
    !gageDischargeIn=-schism_discharge_in ! negative value
 
-
-
    gageDischargeIn=schism_discharge_in ! positive value
    !errStatus !comment out
 
-   print*,'SDL test schism_discharge_in',schism_discharge_in
+   !print*,'SDL test schism_discharge_in',schism_discharge_in
+   print*,'SDL test schism_discharge_in',gageDischargeIn
 
-
+! SDL comment out
    !if(errStatus .ne. 0) then
    !   obsTimeStr(structIndex)%updateTime='no file'
    !   print*,'Ndg: WARNING: issues with skipped timeSliceFile : ', thisTime
@@ -1996,7 +1995,7 @@ do gg=0,nGo-1
    allDists(lastInd+1) = startDist + newDist
    lastInd = lastInd+1
 ! SDL modified
-   #if(lastInd .ge. 10001) &
+   !if(lastInd .ge. 10001) &
    if(lastInd .ge. 5000001) &
         call hydro_stop('distance_along_channel: hardwired 10000 variable size exceeded. FIX.')
    call distance_along_channel( &
@@ -2821,7 +2820,6 @@ else if (temporalPersistence) then
    !! Is this OK as ZERO?? Musk-cunge allows it (in theory).
 
 ! SDL modifid
-
    if (discharge(obsInd)+nudge_term_link .lt. zero) then
       ! SDL comment out
       !nudge_term_link = zero - discharge(obsInd) + smallestNudge

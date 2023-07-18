@@ -41,7 +41,7 @@ type lastObsStructure
 end type lastObsStructure
 
 integer, parameter :: did = 1
-
+! SDL add
 real,save,allocatable,target :: schism_discharge_in(:)
 
 

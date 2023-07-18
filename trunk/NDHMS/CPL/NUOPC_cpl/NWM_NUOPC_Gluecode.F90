@@ -419,7 +419,7 @@ contains
     dt = NWM_TimeIntervalGetReal(timeInterval=timeStep,rc=rc)
     if(ESMF_STDERRORCHECK(rc)) return ! bail out
     ! end testing
-
+! SDL modified
     call NWM_SetFieldData(did, importState,clock)
     call noahMp_exe(itime, state)   
     call NWM_SetFieldData(did, exportState,clock)
@@ -556,15 +556,24 @@ contains
     type(ESMF_Grid) :: cross_grid
     type(ESMF_Grid) :: cross_grid2
     integer,parameter :: cross_numpoints=5
-    real(ESMF_KIND_R8) :: cross_lats2(cross_numpoints)
-    real(ESMF_KIND_R8) :: cross_lons2(cross_numpoints)
-    integer(ESMF_KIND_I4) :: cross_mask2(cross_numpoints)
+    !real(ESMF_KIND_R8) :: cross_lats2(cross_numpoints)
+    !real(ESMF_KIND_R8) :: cross_lons2(cross_numpoints)
+    real(ESMF_KIND_R8), allocatable :: cross_lats2(:)
+    real(ESMF_KIND_R8), allocatable :: cross_lons2(:)
+    !integer(ESMF_KIND_I4) :: cross_mask2(cross_numpoints)
+    integer(ESMF_KIND_I4), allocatable :: cross_mask2(:)
     type(ESMF_Mesh)                 :: mesh_test
     type(ESMF_Mesh)                 :: mesh_test2
     real(ESMF_KIND_R8), pointer :: lonPtr
     real(ESMF_KIND_R8), pointer :: latPtr
-
-    
+    ! Setting start and end points of cross sections for nudging
+    real(ESMF_KIND_R8), allocatable :: cross_lon_start(:)
+    real(ESMF_KIND_R8), allocatable :: cross_lat_start(:)
+    real(ESMF_KIND_R8), allocatable :: cross_lon_end(:)
+    real(ESMF_KIND_R8), allocatable :: cross_lat_end(:)
+    integer :: num_nudging
+    real(ESMF_KIND_R8), allocatable :: tmpcross_lat(:)
+    real(ESMF_KIND_R8), allocatable :: tmpcross_lon(:)
 
 #ifdef DEBUG
     call ESMF_LogWrite(MODNAME//": entered "//METHOD, ESMF_LOGMSG_INFO)
@@ -572,20 +581,83 @@ contains
 
     rc = ESMF_SUCCESS
 
-
     ! initialize farrayPtr_???? attached to locstream
     call ESMF_LocStreamGetBounds(locstream, computationalCount=loccnt, rc=rc)
     if (rc /= ESMF_SUCCESS) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
     allocate(farrayPtr_streamflow(loccnt))
     !farrayPtr_streamflow = -9.9
-    !farrayPtr_streamflow = 100 !!!!!zhy, positive?
     farrayPtr_streamflow = rt_domain(did)%qlink(1:loccnt,2)
-    
     ! temp
     allocate(farrayPtr_loc(loccnt))
     farrayPtr_loc = -9.9
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add for creating cross sections' lats and lons
+    num_nudging=2
+    allocate(cross_lon_start(num_nudging))
+    allocate(cross_lat_start(num_nudging))
+    allocate(cross_lon_end(num_nudging))
+    allocate(cross_lat_end(num_nudging))
+    cross_lat_start=(/33.832939_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/) ! lat: p1_s, p2_s
+    cross_lat_end=(/33.832774_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/) ! lat: p1_e, p2_e
+    cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
+    cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
 
+    allocate(cross_lons2(0))
+    allocate(cross_lats2(0))
+
+    do ii=1,size(cross_lat_start)
+      allocate(tmpcross_lat(cross_numpoints))
+      allocate(tmpcross_lon(cross_numpoints))
+      call linspace(from=cross_lat_start(ii), to=cross_lat_end(ii), &
+                    cross_array=tmpcross_lat)
+      call linspace(from=cross_lon_start(ii), to=cross_lon_end(ii), &
+                    cross_array=tmpcross_lon)
+      cross_lats2=[cross_lats2, tmpcross_lat]
+      cross_lons2=[cross_lons2, tmpcross_lon]
+      deallocate(tmpcross_lat)
+      deallocate(tmpcross_lon)
+    enddo
+    allocate(cross_mask2(size(cross_lats2)))
+
+    print*,'SDL create cross_lats2 size',size(cross_lats2)
+    print*,'SDL create cross_lats2',cross_lats2
+    print*,'SDL create cross_lons2',cross_lons2
+
+    !call linspace(from=33.435429_ESMF_KIND_R8, to=33.428264_ESMF_KIND_R8, cross_array=cross_lats2)
+    !call linspace(from=-79.194777_ESMF_KIND_R8, to=-79.186538_ESMF_KIND_R8, cross_array=cross_lons2)
+
+    deallocate(cross_lon_start)
+    deallocate(cross_lat_start)
+    deallocate(cross_lon_end)
+    deallocate(cross_lat_end)
+
+    cross_locstream2=ESMF_LocStreamCreate(name='cross_locstream2', &
+                        localCount=size(cross_lats2), &
+                        indexflag=ESMF_INDEX_DELOCAL,&
+                        coordSys=ESMF_COORDSYS_SPH_DEG,&
+                        rc=rc)
+    call ESMF_LocStreamAddKey(cross_locstream2, &
+                              keyName="ESMF:Lat", &
+                              farray=cross_lats2, &
+                              datacopyflag=ESMF_DATACOPY_VALUE,&
+                              keyUnits="Degrees", &
+                              keyLongName="Latitude",rc=rc)
+    call ESMF_LocStreamAddKey(cross_locstream2,&
+                              keyName="ESMF:Lon", &
+                              farray=cross_lons2,&
+                              datacopyflag=ESMF_DATACOPY_VALUE,&
+                              keyUnits="Degrees", &
+                              keyLongName="Longitude",rc=rc)
+    call ESMF_LocStreamAddKey(cross_locstream2,&
+                              keyName="ESMF:Mask", &
+                              farray=cross_mask2,&
+                              datacopyflag=ESMF_DATACOPY_VALUE,&
+                              keyLongName="ESMF Mask",rc=rc)
+    !deallocate(cross_lons2)
+    !deallocate(cross_lats2)
+    !deallocate(cross_mask2) 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     SELECT CASE (trim(stdName))
       CASE ('flow_rate')
@@ -610,32 +682,7 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! SDL add
       CASE ('bathymetry')
-        cross_locstream2=ESMF_LocStreamCreate(name='cross_locstream2', &
-                        localCount=cross_numpoints, &
-                        indexflag=ESMF_INDEX_DELOCAL,&
-                        coordSys=ESMF_COORDSYS_SPH_DEG,&
-                        rc=rc)
-        call linspace(from=33.435429_ESMF_KIND_R8, to=33.428264_ESMF_KIND_R8, cross_array=cross_lats2)
-        call linspace(from=-79.194777_ESMF_KIND_R8, to=-79.186538_ESMF_KIND_R8, cross_array=cross_lons2)
-        cross_mask2=(/0,0,0,0,0/)
-        call ESMF_LocStreamAddKey(cross_locstream2, &
-                                  keyName="ESMF:Lat", &
-                                  farray=cross_lats2, &
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyUnits="Degrees", &
-                                  keyLongName="Latitude",rc=rc)
-        call ESMF_LocStreamAddKey(cross_locstream2,&
-                                  keyName="ESMF:Lon", &
-                                  farray=cross_lons2,&
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyUnits="Degrees", &
-                                  keyLongName="Longitude",rc=rc)
-        call ESMF_LocStreamAddKey(cross_locstream2,&
-                                  keyName="ESMF:Mask", &
-                                  farray=cross_mask2,&
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyLongName="ESMF Mask",rc=rc)
-        allocate(fptr_test_bathy(cross_numpoints))
+        allocate(fptr_test_bathy(size(cross_lats2)))
         !fptr_test_wl=0
         NWM_FieldCreate = ESMF_FieldCreate(cross_locstream2, &
                                  fptr_test_bathy, &
@@ -644,34 +691,8 @@ contains
                                  name="bathymetry", rc=rc)
          
 
-
       CASE ('elevation_at_sea_level')
-        cross_locstream2=ESMF_LocStreamCreate(name='cross_locstream2', &
-                        localCount=cross_numpoints, &
-                        indexflag=ESMF_INDEX_DELOCAL,&
-                        coordSys=ESMF_COORDSYS_SPH_DEG,&
-                        rc=rc) 
-        call linspace(from=33.435429_ESMF_KIND_R8, to=33.428264_ESMF_KIND_R8, cross_array=cross_lats2)
-        call linspace(from=-79.194777_ESMF_KIND_R8, to=-79.186538_ESMF_KIND_R8, cross_array=cross_lons2)
-        cross_mask2=(/0,0,0,0,0/)
-        call ESMF_LocStreamAddKey(cross_locstream2, &
-                                  keyName="ESMF:Lat", &
-                                  farray=cross_lats2, &
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyUnits="Degrees", &
-                                  keyLongName="Latitude",rc=rc) 
-        call ESMF_LocStreamAddKey(cross_locstream2,&
-                                  keyName="ESMF:Lon", &
-                                  farray=cross_lons2,&
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyUnits="Degrees", &
-                                  keyLongName="Longitude",rc=rc)
-        call ESMF_LocStreamAddKey(cross_locstream2,&
-                                  keyName="ESMF:Mask", &
-                                  farray=cross_mask2,&
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyLongName="ESMF Mask",rc=rc)
-        allocate(fptr_test_wl(cross_numpoints))
+        allocate(fptr_test_wl(size(cross_lats2)))
         !fptr_test_wl=0
         NWM_FieldCreate = ESMF_FieldCreate(cross_locstream2, &
                                  fptr_test_wl, &
@@ -684,143 +705,65 @@ contains
 
 
       CASE ('depth-averaged_x-velocity')
-        cross_locstream=ESMF_LocStreamCreate(name='cross_locstream', &
-                        localCount=cross_numpoints, &
-                        indexflag=ESMF_INDEX_DELOCAL,&
-                        coordSys=ESMF_COORDSYS_SPH_DEG,&
-                        rc=rc) 
-        call linspace(from=33.435429_ESMF_KIND_R8, to=33.428264_ESMF_KIND_R8, cross_array=cross_lats2)
-        call linspace(from=-79.194777_ESMF_KIND_R8, to=-79.186538_ESMF_KIND_R8, cross_array=cross_lons2)
-        print*,'SDL test cross_lats2',cross_lats2
-        print*,'SDL test cross_lons2',cross_lons2
-        !cross_mask2=(/0,0,0,0,0,0,0,0,0,0/) 
-        cross_mask2=(/0,0,0,0,0/) 
-        call ESMF_LocStreamAddKey(cross_locstream, &
-                                  keyName="ESMF:Lat", &
-                                  farray=cross_lats2, &
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyUnits="Degrees", &
-                                  keyLongName="Latitude",rc=rc) 
-        call ESMF_LocStreamAddKey(cross_locstream,&
-                                  keyName="ESMF:Lon", &
-                                  farray=cross_lons2,&
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyUnits="Degrees", &
-                                  keyLongName="Longitude",rc=rc)
-        call ESMF_LocStreamAddKey(cross_locstream,&
-                                  keyName="ESMF:Mask", &
-                                  farray=cross_mask2,&
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyLongName="ESMF Mask",rc=rc)
-        allocate(fptr_test_dau(cross_numpoints))
+        allocate(fptr_test_dau(size(cross_lats2)))
         !fptr_test_dau=0
-        !allocate(fptr_test_dau(3))
-        !fptr_test_dau=0
-        NWM_FieldCreate = ESMF_FieldCreate(cross_locstream, &
+        NWM_FieldCreate = ESMF_FieldCreate(cross_locstream2, &
                                  fptr_test_dau, &
                                  ESMF_INDEX_DELOCAL,&
                                  datacopyflag=ESMF_DATACOPY_REFERENCE, &
                                  name="depth-averaged_x-velocity", rc=rc)
         
-      CASE ('depth-averaged_x-velocity-mesh')
-      !  call linspace(from=33.435429, to=33.428264, array=cross_lats2)
-      !  call linspace(from=-79.194777, to=-79.186538, array=cross_lons2)
-        cross_grid=ESMF_GridCreateNoPeriDimUfrm(maxIndex=(/10, 10/), &
-                   minCornerCoord=(/-79.195_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/), &
-                   maxCornerCoord=(/-79.186538_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/), &
-                   coordSys=ESMF_COORDSYS_SPH_DEG, &
-                   staggerLocList=(/ESMF_STAGGERLOC_CORNER/), rc=rc)
-        !call ESMF_GridGetCoord(cross_grid, coordDim=1, farray=lonPtr, rc=rc)
-        !print*,'NWM lonPtr',lonPtr
-        !call ESMF_GridGetCoord(cross_grid, coordDim=2, farray=latPtr, rc=rc)
-        !print*,'NWM lonPtr',lonPtr
-        
-        mesh_test = ESMF_MeshCreate(grid=cross_grid, rc=rc)
-        if(ESMF_STDERRORCHECK(rc)) return ! bail out
-
-        ! get mesh dimenssion
-        call ESMF_MeshGet(mesh_test, spatialDim=dimCount, &
-                  numOwnedElements=numOwnedElements, &
-                   numOwnedNodes=numOwnedNodes, rc=rc)
-        if(ESMF_STDERRORCHECK(rc)) return ! bail out
-    
-        print*, 'SCHISM numOwnedNodes',numOwnedNodes
-
-        allocate(fptr_test_dau(numOwnedNodes))
-        ! importable field: water level
-        !NWM_FieldCreate = ESMF_FieldCreate(name="depth-averaged_x-velocity",&
-        !                   mesh=mesh_test, &
-        !                   farrayPtr=fptr_test_dau, &
-        !                   datacopyflag=ESMF_DATACOPY_REFERENCE,&
-        !                   meshloc=ESMF_MESHLOC_NODE, rc=rc)
-        NWM_FieldCreate=ESMF_FieldCreate(mesh_test,&
-                        name="depth-averaged_x-velocity",&
-                        typekind=ESMF_TYPEKIND_R8,&
-                        meshloc=ESMF_MESHLOC_NODE, rc=rc)
-                        !meshloc=ESMF_MESHLOC_ELEMENT,&
-                        !ungriddedLbound=(/1/), ungriddedUbound=(/4/), rc=rc)
-      CASE ('depth-averaged_y-velocity-mesh')
-        cross_grid2=ESMF_GridCreateNoPeriDimUfrm(maxIndex=(/10, 10/), &
-                   minCornerCoord=(/-79.195_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/), &
-                   maxCornerCoord=(/-79.186538_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/), &
-                   coordSys=ESMF_COORDSYS_SPH_DEG, &
-                   staggerLocList=(/ESMF_STAGGERLOC_CORNER/), rc=rc)
-        mesh_test2 = ESMF_MeshCreate(grid=cross_grid2, rc=rc)
-        if(ESMF_STDERRORCHECK(rc)) return ! bail out
-        call ESMF_MeshGet(mesh_test2, spatialDim=dimCount, &
-                  numOwnedElements=numOwnedElements, &
-                   numOwnedNodes=numOwnedNodes, rc=rc)
-        if(ESMF_STDERRORCHECK(rc)) return ! bail out
-        NWM_FieldCreate=ESMF_FieldCreate(mesh_test2,&
-                        name="depth-averaged_y-velocity",&
-                        typekind=ESMF_TYPEKIND_R8,&
-                        meshloc=ESMF_MESHLOC_NODE, rc=rc)
+      !CASE ('depth-averaged_x-velocity-mesh')
+      !  cross_grid=ESMF_GridCreateNoPeriDimUfrm(maxIndex=(/10, 10/), &
+      !             minCornerCoord=(/-79.195_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/), &
+      !             maxCornerCoord=(/-79.186538_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/), &
+      !             coordSys=ESMF_COORDSYS_SPH_DEG, &
+      !             staggerLocList=(/ESMF_STAGGERLOC_CORNER/), rc=rc)
+      !  
+      !  mesh_test = ESMF_MeshCreate(grid=cross_grid, rc=rc)
+      !  if(ESMF_STDERRORCHECK(rc)) return ! bail out
+      !
+      !  ! get mesh dimenssion
+      !  call ESMF_MeshGet(mesh_test, spatialDim=dimCount, &
+      !            numOwnedElements=numOwnedElements, &
+      !             numOwnedNodes=numOwnedNodes, rc=rc)
+      !  if(ESMF_STDERRORCHECK(rc)) return ! bail out
+      ! 
+      !  print*, 'SCHISM numOwnedNodes',numOwnedNodes
+      !
+      !  allocate(fptr_test_dau(numOwnedNodes))
+      !
+      !  NWM_FieldCreate=ESMF_FieldCreate(mesh_test,&
+      !                  name="depth-averaged_x-velocity",&
+      !                  typekind=ESMF_TYPEKIND_R8,&
+      !                  meshloc=ESMF_MESHLOC_NODE, rc=rc)
+      !                  !meshloc=ESMF_MESHLOC_ELEMENT,&
+      !                  !ungriddedLbound=(/1/), ungriddedUbound=(/4/), rc=rc)
+      !CASE ('depth-averaged_y-velocity-mesh')
+      !  cross_grid2=ESMF_GridCreateNoPeriDimUfrm(maxIndex=(/10, 10/), &
+      !             minCornerCoord=(/-79.195_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/), &
+      !             maxCornerCoord=(/-79.186538_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/), &
+      !             coordSys=ESMF_COORDSYS_SPH_DEG, &
+      !             staggerLocList=(/ESMF_STAGGERLOC_CORNER/), rc=rc)
+      !  mesh_test2 = ESMF_MeshCreate(grid=cross_grid2, rc=rc)
+      !  if(ESMF_STDERRORCHECK(rc)) return ! bail out
+      !  call ESMF_MeshGet(mesh_test2, spatialDim=dimCount, &
+      !            numOwnedElements=numOwnedElements, &
+      !             numOwnedNodes=numOwnedNodes, rc=rc)
+      !  if(ESMF_STDERRORCHECK(rc)) return ! bail out
+      !  NWM_FieldCreate=ESMF_FieldCreate(mesh_test2,&
+      !                  name="depth-averaged_y-velocity",&
+      !                  typekind=ESMF_TYPEKIND_R8,&
+      !                  meshloc=ESMF_MESHLOC_NODE, rc=rc)
       CASE ('depth-averaged_y-velocity')
-        cross_locstream=ESMF_LocStreamCreate(name='cross_locstream', &
-                        localCount=cross_numpoints, &
-                        indexflag=ESMF_INDEX_DELOCAL,&
-                        coordSys=ESMF_COORDSYS_SPH_DEG,&
-                        rc=rc) 
-        call linspace(from=33.435429_ESMF_KIND_R8, to=33.428264_ESMF_KIND_R8, cross_array=cross_lats2)
-        call linspace(from=-79.194777_ESMF_KIND_R8, to=-79.186538_ESMF_KIND_R8, cross_array=cross_lons2)
-        !print*,'SDL test cross_lats2',cross_lats2
-        !print*,'SDL test cross_lons2',cross_lons2
-        !cross_mask2=(/0,0,0,0,0,0,0,0,0,0/) 
-        cross_mask2=(/0,0,0,0,0/) 
-        call ESMF_LocStreamAddKey(cross_locstream, &
-                                  keyName="ESMF:Lat", &
-                                  farray=cross_lats2, &
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyUnits="Degrees", &
-                                  keyLongName="Latitude",rc=rc) 
-        call ESMF_LocStreamAddKey(cross_locstream,&
-                                  keyName="ESMF:Lon", &
-                                  farray=cross_lons2,&
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyUnits="Degrees", &
-                                  keyLongName="Longitude",rc=rc)
-        call ESMF_LocStreamAddKey(cross_locstream,&
-                                  keyName="ESMF:Mask", &
-                                  farray=cross_mask2,&
-                                  datacopyflag=ESMF_DATACOPY_VALUE,&
-                                  keyLongName="ESMF Mask",rc=rc)
-        allocate(fptr_test_dav(cross_numpoints))
-        NWM_FieldCreate = ESMF_FieldCreate(cross_locstream, &
+        allocate(fptr_test_dav(size(cross_lats2)))
+        NWM_FieldCreate = ESMF_FieldCreate(cross_locstream2, &
                                  fptr_test_dav, &
                                  ESMF_INDEX_DELOCAL,&
                                  datacopyflag=ESMF_DATACOPY_REFERENCE, &
                                  name="depth-averaged_y-velocity", rc=rc)
 
-
-
-
-
-
-
-
-
-
-      CASE ('depth-averaged_x-velocity-grid')
+      !CASE ('depth-averaged_x-velocity-grid')
         !NWM_FieldCreate = ESMF_FieldCreate(grid=grid, &
         !                  typekind=ESMF_TYPEKIND_R8, &
         !                  indexflag=ESMF_INDEX_DELOCAL, &
@@ -929,6 +872,11 @@ contains
                                       file=FILENAME,rcToReturn=rc)
         return  ! bail out
     END SELECT
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SDL add
+    deallocate(cross_lons2)
+    deallocate(cross_lats2)
+    deallocate(cross_mask2)
 
 #ifdef DEBUG
     call ESMF_LogWrite(MODNAME//": leaving "//METHOD, ESMF_LOGMSG_INFO)
@@ -2041,10 +1989,10 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! SDL add
     use module_nudging_io, only: schism_discharge_in
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer, intent(in)                       :: did
     type(ESMF_State)                          :: activeState
+! SDL add
     type(ESMF_Clock),intent(in)             :: clock
 
     ! local variables
@@ -2100,10 +2048,12 @@ contains
     real(ESMF_KIND_R8) :: cross_lon_start1, cross_lon_end1
 
     real(ESMF_KIND_R8) :: cross_a1, cross_b1
-    real(ESMF_KIND_R8) :: schism_dau_new(cross_numpoints)
-    real(ESMF_KIND_R8) :: schism_dav_new(cross_numpoints)
-   
-    integer :: ii
+    !real(ESMF_KIND_R8) :: schism_dau_new(cross_numpoints)
+    !real(ESMF_KIND_R8) :: schism_dav_new(cross_numpoints)
+    real(ESMF_KIND_R8), allocatable :: schism_dau_new(:)
+    real(ESMF_KIND_R8), allocatable :: schism_dav_new(:)
+    
+    integer :: ii, jj
 
     real(ESMF_KIND_R8) :: tmpdistance
     real(ESMF_KIND_R8), allocatable :: distance(:)
@@ -2118,7 +2068,16 @@ contains
     integer :: day  
     integer(ESMF_KIND_I4) :: hour, minute, second
     type(ESMF_StateIntent_Flag) :: stateintent
-
+ 
+    integer :: num_nudging
+    real(ESMF_KIND_R8), allocatable :: cross_lon_start(:)
+    real(ESMF_KIND_R8), allocatable :: cross_lat_start(:)
+    real(ESMF_KIND_R8), allocatable :: cross_lon_end(:)
+    real(ESMF_KIND_R8), allocatable :: cross_lat_end(:)
+    real(ESMF_KIND_R8), allocatable :: tmpcross_lat(:)
+    real(ESMF_KIND_R8), allocatable :: tmpcross_lon(:)
+    real(ESMF_KIND_R8), allocatable :: cross_lons2(:)
+    real(ESMF_KIND_R8), allocatable :: cross_lats2(:)
 
 #ifdef DEBUG
     call ESMF_LogWrite(MODNAME//": entered "//METHOD, ESMF_LOGMSG_INFO)
@@ -2328,64 +2287,169 @@ contains
     enddo
     deallocate(itemNames)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! SDL add
+! SDL add for calculating river discharge and transferring it to NWM
     call ESMF_StateGet(activeState, stateintent=stateintent, rc=rc)
-    if (stateintent==ESMF_STATEINTENT_EXPORT) then
-      deallocate(schism_discharge_in)
-    endif
+    !if (stateintent==ESMF_STATEINTENT_EXPORT) then
+    !  deallocate(schism_discharge_in)
+    !endif
     if (stateintent==ESMF_STATEINTENT_IMPORT) then 
       print*,'SDL test NWM SCHISM u_x: ',schism_dau_ptr
       print*,'SDL test NWM SCHISM v_y: ',schism_dav_ptr
       print*,'SDL test NWM SCHISM wl: ',schism_wl_ptr
       !print*,'SDL test NWM SCHISM bathy: ',schism_bathy_ptr
       ! Calculating river discharge
-      cross_lat_start1=33.435429_ESMF_KIND_R8
-      cross_lat_end1=33.428264_ESMF_KIND_R8
-      cross_lon_start1=-79.194777_ESMF_KIND_R8
-      cross_lon_end1=-79.186538_ESMF_KIND_R8
-      call linspace(from=cross_lat_start1, to=cross_lat_end1, cross_array=cross_lats)
-      call linspace(from=cross_lon_start1, to=cross_lon_end1, cross_array=cross_lons)
-      cross_a1=(cross_lat_start1-cross_lat_end1)/(cross_lon_start1-cross_lon_end1)
-      cross_b1=(cross_lon_start1*cross_lat_end1-cross_lat_start1*cross_lon_end1)/(cross_lon_start1-cross_lon_end1)
-      schism_dau_new=schism_dau_ptr*cos(atan(cross_a1))+schism_dav_ptr*sin(atan(cross_a1))
-      schism_dav_new=schism_dav_ptr*cos(atan(cross_a1))-schism_dau_ptr*sin(atan(cross_a1))
-      print*,'SDL test SCHISM cross_u_x: ',schism_dau_new
-      print*,'SDL test SCHISM cross_v_y: ',schism_dav_new
+      ! create cross sections' lons and lats again to calculate the width of
+      ! river
+      num_nudging=2
+      allocate(cross_lon_start(num_nudging))
+      allocate(cross_lat_start(num_nudging))
+      allocate(cross_lon_end(num_nudging))
+      allocate(cross_lat_end(num_nudging))
+      cross_lat_start=(/33.832939_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/) ! lat: p1_s, p2_s
+      cross_lat_end=(/33.832774_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/) ! lat: p1_e, p2_e
+      cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
+      cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
 
-      allocate(distance(size(cross_lats)-1))
-      allocate(distance_new(size(cross_lats)-2))
-      allocate(schism_discharge_tmp(size(cross_lats)-2))
-      allocate(schism_discharge(1))
+      allocate(cross_lons2(0))
+      allocate(cross_lats2(0))
 
-      do ii=1,size(cross_lats)-1
-        call distance_calculator(cross_lats(ii),cross_lats(ii+1), &
-                                 cross_lons(ii),cross_lons(ii+1), &
-                                 tmpdistance)
-        distance(ii)=tmpdistance
+      do ii=1,size(cross_lat_start)
+        allocate(tmpcross_lat(cross_numpoints))
+        allocate(tmpcross_lon(cross_numpoints))
+        call linspace(from=cross_lat_start(ii), to=cross_lat_end(ii), &
+                      cross_array=tmpcross_lat)
+        call linspace(from=cross_lon_start(ii), to=cross_lon_end(ii), &
+                      cross_array=tmpcross_lon)
+        cross_lats2=[cross_lats2, tmpcross_lat]
+        cross_lons2=[cross_lons2, tmpcross_lon]
+        deallocate(tmpcross_lat)
+        deallocate(tmpcross_lon)
       enddo 
-      print*,'SDL test SCHISM distance: ',distance
+      !deallocate(cross_lon_start)
+      !deallocate(cross_lat_start)
+      !deallocate(cross_lon_end)
+      !deallocate(cross_lat_end)
 
-      do ii=1,size(cross_lats)-2
-        distance_new(ii)=distance(ii)/2+distance(ii+1)/2
-      enddo 
-
-      do ii=1,size(cross_lats)-2
-        schism_discharge_tmp(ii)=distance_new(ii)*schism_wl_ptr(ii+1)*schism_dav_new(ii+1)
+      !print*,'SDL test cross_lats2 in calculation: ',cross_lats2
+      !print*,'SDL test cross_lons2 in calculation: ',cross_lons2
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      !cross_lat_start1=33.435429_ESMF_KIND_R8
+      !cross_lat_end1=33.428264_ESMF_KIND_R8
+      !cross_lon_start1=-79.194777_ESMF_KIND_R8
+      !cross_lon_end1=-79.186538_ESMF_KIND_R8
+      !call linspace(from=cross_lat_start1, to=cross_lat_end1, cross_array=cross_lats)
+      !call linspace(from=cross_lon_start1, to=cross_lon_end1, cross_array=cross_lons)
+      allocate(schism_dau_new(0))
+      allocate(schism_dav_new(0))
+      do ii=1,num_nudging
+        !print*,'SDL test cross_a1 part1:',(cross_lat_start(ii)-cross_lat_end(ii))
+        !print*,'SDL test cross_a1 part2:',(cross_lon_start(ii)-cross_lon_end(ii))
+        cross_a1=(cross_lat_start(ii)-cross_lat_end(ii))/(cross_lon_start(ii)-cross_lon_end(ii))
+        !print*,'SDL test cross_a1: ', cross_a1
+        cross_b1=(cross_lon_start(ii)*cross_lat_end(ii)-cross_lat_start(ii)*cross_lon_end(ii))/ &
+                 (cross_lon_start(ii)-cross_lon_end(ii))
+        !print*,'SDL test cross_b1: ', cross_b1
+        schism_dau_new=[schism_dau_new, &
+                        schism_dau_ptr((ii-1)*cross_numpoints+1:cross_numpoints*ii)*cos(atan(cross_a1))+ &
+                        schism_dav_ptr((ii-1)*cross_numpoints+1:cross_numpoints*ii)*sin(atan(cross_a1))]
+        schism_dav_new=[schism_dav_new, &
+                        schism_dav_ptr((ii-1)*cross_numpoints+1:cross_numpoints*ii)*cos(atan(cross_a1))- &
+                        schism_dau_ptr((ii-1)*cross_numpoints+1:cross_numpoints*ii)*sin(atan(cross_a1))]
       enddo
-
-      schism_discharge=0
-      do ii=1,size(cross_lats)-2
-        schism_discharge=schism_discharge+schism_discharge_tmp(ii)
+      deallocate(cross_lon_start)
+      deallocate(cross_lat_start)
+      deallocate(cross_lon_end)
+      deallocate(cross_lat_end)
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      !cross_a1=(cross_lat_start1-cross_lat_end1)/(cross_lon_start1-cross_lon_end1)
+      !cross_b1=(cross_lon_start1*cross_lat_end1-cross_lat_start1*cross_lon_end1)/(cross_lon_start1-cross_lon_end1)
+      !schism_dau_new=schism_dau_ptr*cos(atan(cross_a1))+schism_dav_ptr*sin(atan(cross_a1))
+      !schism_dav_new=schism_dav_ptr*cos(atan(cross_a1))-schism_dau_ptr*sin(atan(cross_a1))
+      print*,'SDL test SCHISM cross_u_x size: ',size(schism_dau_new)
+      print*,'SDL test SCHISM cross_u_x upstream: ',schism_dau_new(1:5)
+      print*,'SDL test SCHISM cross_v_y upstream: ',schism_dav_new(1:5)
+      print*,'SDL test NWM SCHISM wl upstream: ',schism_wl_ptr(1:5)
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      allocate(schism_discharge(num_nudging))
+      do ii=1,num_nudging
+        allocate(distance(cross_numpoints-1))
+        do jj=1,cross_numpoints-1
+          call distance_calculator(cross_lats2((ii-1)*cross_numpoints+jj), &
+               cross_lats2((ii-1)*cross_numpoints+jj+1), &
+               cross_lons2((ii-1)*cross_numpoints+jj), &
+               cross_lons2((ii-1)*cross_numpoints+jj+1), tmpdistance)
+          distance(jj)=tmpdistance
+        enddo
+        !allocate(distance_new(cross_numpoints-2))
+        if (ii .eq. 1) then ! Waccamaw river upstream boundary 
+          print*,'SDL test SCHISM distance upstream: ',distance
+          allocate(distance_new(cross_numpoints-2))
+          allocate(schism_discharge_tmp(cross_numpoints-2))
+          do jj=1,cross_numpoints-2
+            distance_new(jj)=distance(jj)/2+distance(jj+1)/2
+            schism_discharge_tmp(jj)=distance_new(jj)*schism_wl_ptr((ii-1)*cross_numpoints+jj+1)* &
+                                     schism_dav_new((ii-1)*cross_numpoints+jj+1)
+          enddo
+          !schism_discharge(ii)=0
+          !do jj=1,cross_numpoints-2
+          !  schism_discharge(ii)=schism_discharge(ii)+schism_discharge_tmp(jj)
+          !enddo
+          schism_discharge(ii)=schism_discharge_tmp(2) ! center point
+          deallocate(distance_new)
+          deallocate(schism_discharge_tmp)
+        else if (ii .eq. 2) then ! Waccamaw river downstream, near estuary
+          print*,'SDL test SHCISM distance downstream: ',distance
+          allocate(distance_new(cross_numpoints-2))
+          allocate(schism_discharge_tmp(cross_numpoints-2))
+          do jj=1,cross_numpoints-2
+            distance_new(jj)=distance(jj)/2+distance(jj+1)/2
+            schism_discharge_tmp(jj)=distance_new(jj)*schism_wl_ptr((ii-1)*cross_numpoints+jj+1)* &
+                                     schism_dav_new((ii-1)*cross_numpoints+jj+1)
+          enddo
+          schism_discharge(ii)=0
+          do jj=1,cross_numpoints-2
+            schism_discharge(ii)=schism_discharge(ii)+schism_discharge_tmp(jj)
+          enddo
+          deallocate(distance_new)
+          deallocate(schism_discharge_tmp)
+        endif
+        deallocate(distance)
       enddo
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      !allocate(distance(size(cross_lats)-1))
+      !allocate(distance_new(size(cross_lats)-2))
+      !allocate(schism_discharge_tmp(size(cross_lats)-2))
+      !allocate(schism_discharge(1))
 
+      !do ii=1,size(cross_lats)-1
+      !  call distance_calculator(cross_lats(ii),cross_lats(ii+1), &
+      !                           cross_lons(ii),cross_lons(ii+1), &
+      !                           tmpdistance)
+      !  distance(ii)=tmpdistance
+      !enddo 
+      !print*,'SDL test SCHISM distance: ',distance
+
+      !do ii=1,size(cross_lats)-2
+      !  distance_new(ii)=distance(ii)/2+distance(ii+1)/2
+      !enddo 
+
+      !do ii=1,size(cross_lats)-2
+      !  schism_discharge_tmp(ii)=distance_new(ii)*schism_wl_ptr(ii+1)*schism_dav_new(ii+1)
+      !enddo
+
+      !schism_discharge=0
+      !do ii=1,size(cross_lats)-2
+      !  schism_discharge=schism_discharge+schism_discharge_tmp(ii)
+      !enddo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !print*,'SDL test SCHISM discharge: ',schism_discharge
       ! SDL for NWM nudging
-      allocate(schism_discharge_in(1))
-      schism_discharge_in=-schism_discharge
-
+      if (allocated(schism_discharge_in)) deallocate(schism_discharge_in)
+      allocate(schism_discharge_in(num_nudging))
+      do ii=1,num_nudging
+        schism_discharge_in(ii)=-schism_discharge(ii)
+      enddo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
       call ESMF_ClockGet(clock, currTime=currTime, timeStep=timeStep, rc=rc)
       call ESMF_TimeGet(currTime, yy=year, mm=month, dd=day, h=hour, m=minute, s=second)
       !call ESMF_StateGet(activeState, stateintent=stateintent, rc=rc)
@@ -2399,14 +2463,19 @@ contains
         else
           open(unit=2222,file='SCHISM-TO-NWM-Discharge.txt',status='new')
         endif
-        write(2222, '(I4,I2.2,I2.2,I2.2,I2.2,I2.2,F20.5)') year, month, day, hour, minute, second, schism_discharge
+        write(2222, '(I4,I2.2,I2.2,I2.2,I2.2,I2.2,F20.5,F20.5)') year, month, day, hour, minute, second, &
+              schism_discharge(1), schism_discharge(2)
         close(2222)
       endif
     
-      deallocate(distance)
-      deallocate(distance_new)
-      deallocate(schism_discharge_tmp)
+      !deallocate(distance)
+      !deallocate(distance_new)
+      !deallocate(schism_discharge_tmp)
       deallocate(schism_discharge)
+
+      deallocate(cross_lons2)
+      deallocate(cross_lats2)
+
     endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
