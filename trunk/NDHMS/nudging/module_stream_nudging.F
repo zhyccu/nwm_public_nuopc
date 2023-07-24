@@ -1477,7 +1477,7 @@ if(filterObsToDom) then
      !!SDL!!gateTimeIn(/thisTime,thisTime/)
      !!SDL!!gageQCIn=(/0.05,1.0/)
      !!!!!zhy
-     do i = 1, line_number
+     do i = 1, nGages
         read(10, *) ID(i), RLatitude(i), RLongitude(i), LLatitude(i), LLongitude(i), Link(i), usgsIdIn(i), gageQCIn(i)
         gageTimeIn(i)=thisTime
      end do      
