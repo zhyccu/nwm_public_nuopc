@@ -203,7 +203,7 @@ CONTAINS
 ! SDL add
    coastal_coupling = .true.
    obs_coupling = .false.
-   CSLosFile="./CS_loc.txt"   
+   CSLocFile="./CS_loc.txt"   
 #endif
 
 #ifdef MPP_LAND
