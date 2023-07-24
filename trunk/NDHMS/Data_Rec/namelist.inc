@@ -75,6 +75,10 @@
           integer ::khour
 
 !#ifdef WRF_HYDRO_NUDGING
+! SDL add
+       logical            :: coastal_coupling
+       logical            :: obs_coupling
+
        character(len=256) :: nudgingParamFile
        character(len=256) :: netwkReExFile
        logical            :: readTimesliceParallel
@@ -88,6 +92,9 @@
        logical            :: noConstInterfBias
        character(len=256) :: timeSlicePath
        integer            :: nLastObs
+! SDL add
+       !logical            :: coastal_coupling
+       !logical            :: obs_coupling
 !#endif
 
 

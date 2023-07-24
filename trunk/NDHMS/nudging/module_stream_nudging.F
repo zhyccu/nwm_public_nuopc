@@ -143,7 +143,9 @@ logical :: nudgeThisLsmTimeStep
 
 !! JLM: these options are hardcoded/hardwired for now, evnt go in namelist
 ! SDL modify
+! if nlst(did)%obs_coupling=true
 !integer,            parameter :: obsResolutionInt = 15 ! minutes
+! if nlst(did)%coastal_coupling=true
 integer,            parameter :: obsResolutionInt = 60 ! minutes
 real,               parameter :: obsCheckFreq     = 90 ! minutes
 logical,            parameter :: filterObsToDom   = .TRUE.
@@ -172,6 +174,9 @@ integer            :: minNumPairsBiasPersist
 integer            :: maxAgePairsBiasPersist
 logical            :: invDistTimeWeightBias
 logical            :: noConstInterfBias
+! SDL add
+logical            :: coastal_coupling
+logical            :: obs_coupling
 
 !========================
 ! Space book keeping
@@ -288,6 +293,11 @@ real,    allocatable, dimension(:) :: g_nudge
 integer :: downSize, upSize, baseSize, nStnLastObs
 character(len=256) :: lastObsFile             !! confirms existence of a file
 logical :: lastObsFileFound
+
+! SDL add
+!logical :: coastal_coupling
+!logical :: obs_coupling
+
 !!$#ifdef HYDRO_D  /* un-ifdef to get timing results */
 !!$real :: startCodeTimeAcc, endCodeTimeAcc
 !!$
@@ -319,6 +329,11 @@ minNumPairsBiasPersist = nlst(did)%minNumPairsBiasPersist
 maxAgePairsBiasPersist = nlst(did)%maxAgePairsBiasPersist
 invDistTimeWeightBias  = nlst(did)%invDistTimeWeightBias
 noConstInterfBias      = nlst(did)%noConstInterfBias
+! SDL add and modified
+coastal_coupling = nlst(did)%coastal_coupling
+obs_coupling     = nlst(did)%obs_coupling
+!print*,'SDL test coastal_coupling',coastal_coupling
+!print*,'SDL test obs_coupling',obs_coupling
 !#endif
 
 nLinks       = RT_DOMAIN(did)%NLINKS   ! For gridded channel routing
@@ -1354,6 +1369,11 @@ real,              allocatable, dimension(:) :: gageDischargeIn !! m3/s
 
 ! Is there a timeslice file?
 thisTime = obsTimeStr(structIndex)%time
+
+! SDL test
+!print*,'SDL test coastal_coupling',coastal_coupling
+!print*,'SDL test obs_coupling',obs_coupling
+
 fileName = find_timeslice_file(thisTime, obsResolution)
 
 ! If no file, note in updateTime and get out!
@@ -1410,52 +1430,57 @@ if(filterObsToDom) then
    print*,'SDL test sanityQcDischarge: ',sanityQcDischarge
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! SDL modified
-!   call read_timeslice_file(fileName,             &
-!                            sanityQcDischarge,    &
-!                            timeIn,               &
-!                            updateTimeIn,         &
-!                            sliceResoIn,          &
-!                            usgsIdIn,             &
-!                            gageTimeIn,           &
-!                            gageQCIn,             &
-!                            gageDischargeIn,      &
-!                            readTimesliceErrFatal,&
-!                            errStatus             )
-! SDL add
-   !timeIn  !comment out
-   updateTimeIn="2023-07-12_14:40:00"
-   !sliceResoIn=60 !comment out
-   usgsIdIn=(/'111111111111112','111111111111111'/)
-   gageTimeIn=(/thisTime,thisTime/)
+   if (obs_coupling) then
+     call read_timeslice_file(fileName,             &
+                              sanityQcDischarge,    &
+                              timeIn,               &
+                              updateTimeIn,         &
+                              sliceResoIn,          &
+                              usgsIdIn,             &
+                              gageTimeIn,           &
+                              gageQCIn,             &
+                              gageDischargeIn,      &
+                              readTimesliceErrFatal,&
+                              errStatus             )
+   else if (coastal_coupling) then 
+   ! SDL add
+     print*,'SDL test coastal_coupling',coastal_coupling
+     !timeIn  !comment out
+     updateTimeIn="2023-07-12_14:40:00"
+     !sliceResoIn=60 !comment out
+     usgsIdIn=(/'111111111111112','111111111111111'/)
+     gageTimeIn=(/thisTime,thisTime/)
+  
+     gageQCIn=(/0.05,1.0/)
+     !where(schism_discharge_in .le. 0.000) gageQCIn=0
+     !if (schism_discharge_in .le. 0) then
+     !  gageQCIn=0
+     !else
+     !  gageQCIn=1
+     !endif
+     !gageDischargeIn=50
+     !gageDischargeIn=-schism_discharge_in ! negative value
+  
+     gageDischargeIn=schism_discharge_in ! positive value
+     !errStatus !comment out
 
-   gageQCIn=(/0.1,1.0/)
-   !where(schism_discharge_in .le. 0.000) gageQCIn=0
-   !if (schism_discharge_in .le. 0) then
-   !  gageQCIn=0
-   !else
-   !  gageQCIn=1
-   !endif
-   !gageDischargeIn=50
-   !gageDischargeIn=-schism_discharge_in ! negative value
+     !print*,'SDL test schism_discharge_in',schism_discharge_in
+     print*,'SDL test schism_discharge_in',gageDischargeIn
+   endif
+! SDL modified
+   if (obs_coupling) then
+     if(errStatus .ne. 0) then
+       obsTimeStr(structIndex)%updateTime='no file'
+       print*,'Ndg: WARNING: issues with skipped timeSliceFile : ', thisTime
+       deallocate(usgsIdIn, gageTimeIn, gageQCIn, gageDischargeIn)
+       return
+     end if
 
-   gageDischargeIn=schism_discharge_in ! positive value
-   !errStatus !comment out
-
-   !print*,'SDL test schism_discharge_in',schism_discharge_in
-   print*,'SDL test schism_discharge_in',gageDischargeIn
-
-! SDL comment out
-   !if(errStatus .ne. 0) then
-   !   obsTimeStr(structIndex)%updateTime='no file'
-   !   print*,'Ndg: WARNING: issues with skipped timeSliceFile : ', thisTime
-   !   deallocate(usgsIdIn, gageTimeIn, gageQCIn, gageDischargeIn)
-   !   return
-   !end if
-
-   !if(timeIn .NE. obsTimeStr(structIndex)%time) &
-   !     call hydro_stop('timeslice_file_to_struct: file time does not match structure')
-   !if(obsResolution .NE. sliceResoIn) &
-   !     call hydro_stop('timeslice_file_to_struct: model and file timeslice resolution do not match.')
+     if(timeIn .NE. obsTimeStr(structIndex)%time) &
+          call hydro_stop('timeslice_file_to_struct: file time does not match structure')
+     if(obsResolution .NE. sliceResoIn) &
+          call hydro_stop('timeslice_file_to_struct: model and file timeslice resolution do not match.')
+   endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    !save when the file was updated
    obsTimeStr(structIndex)%updateTime = updateTimeIn
@@ -2822,7 +2847,9 @@ else if (temporalPersistence) then
 ! SDL modifid
    if (discharge(obsInd)+nudge_term_link .lt. zero) then
       ! SDL comment out
-      !nudge_term_link = zero - discharge(obsInd) + smallestNudge
+      if (obs_coupling) then
+        nudge_term_link = zero - discharge(obsInd) + smallestNudge
+      endif
       !print*,'JLM setting nudge_term_link + observed discharge to zero (or very small)', prstGageId
    endif
 

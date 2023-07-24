@@ -85,10 +85,13 @@ find_timeslice_file=''
 tmpTimeSlice = trim(nlst(did)%timeSlicePath) // date // "." // &
                     obsResolution // 'min.usgsTimeSlice.ncdf'
 ! SDL modified
-!inquire(FILE=tmpTimeSlice, EXIST=fileExists)
-!if (fileExists) find_timeslice_file = trim(tmpTimeSlice)
-fileExists=.True.
-find_timeslice_file=trim(tmpTimeSlice)
+if (nlst(did)%obs_coupling) then
+  inquire(FILE=tmpTimeSlice, EXIST=fileExists)
+  if (fileExists) find_timeslice_file = trim(tmpTimeSlice)
+else if (nlst(did)%coastal_coupling) then
+  fileExists=.True.
+  find_timeslice_file=trim(tmpTimeSlice)
+endif
 
 #ifdef HYDRO_D
 print*,'Ndg: timeSlice file: ', tmpTimeSlice

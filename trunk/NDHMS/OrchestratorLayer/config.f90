@@ -156,6 +156,10 @@ module config_base
      integer            :: nLastObs
      integer            :: bucket_loss
 
+! SDL add
+     logical            :: coastal_coupling
+     logical            :: obs_coupling
+
    contains
 
      procedure, pass(self) :: check => rt_nlst_check
@@ -530,6 +534,9 @@ contains
     integer            :: maxAgePairsBiasPersist
     logical            :: invDistTimeWeightBias
     logical            :: noConstInterfBias
+! SDL add
+    logical            :: coastal_coupling
+    logical            :: obs_coupling
 #endif
 
     namelist /HYDRO_nlist/ NSOIL, ZSOIL8,&
@@ -555,7 +562,10 @@ contains
          io_config_outputs, io_form_outputs, hydrotbl_f, t0OutputFlag, output_channelBucket_influx
 
 #ifdef WRF_HYDRO_NUDGING
-    namelist /NUDGING_nlist/ nudgingParamFile,       netwkReExFile,          &
+! SDL modified
+    !namelist /NUDGING_nlist/ nudgingParamFile,       netwkReExFile,          &
+    namelist /NUDGING_nlist/ coastal_coupling, obs_coupling, &
+         nudgingParamFile,       netwkReExFile,          &
          readTimesliceParallel,  temporalPersistence,    &
          persistBias,            nudgingLastObsFile,     &
          timeSlicePath,          nLastObs,               &
@@ -603,6 +613,9 @@ contains
     maxAgePairsBiasPersist = -99999
     invDistTimeWeightBias  = .false.
     noConstInterfBias      = .false.
+! SDL add
+    coastal_coupling = .true.
+    obs_coupling =.false.
 #endif
 
 ! #ifdef MPP_LAND
@@ -801,6 +814,9 @@ contains
     nlst(did)%maxAgePairsBiasPersist = maxAgePairsBiasPersist
     nlst(did)%invDistTimeWeightBias  = invDistTimeWeightBias
     nlst(did)%noConstInterfBias      = noConstInterfBias
+! SDL add
+    nlst(did)%coastal_coupling = coastal_coupling
+    nlst(did)%obs_coupling = obs_coupling
 #endif
 
     call nlst(did)%check()

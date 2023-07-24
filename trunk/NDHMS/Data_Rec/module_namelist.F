@@ -116,6 +116,9 @@ CONTAINS
        integer            :: maxAgePairsBiasPersist
        logical            :: invDistTimeWeightBias
        logical            :: noConstInterfBias
+! SDL add
+       logical :: coastal_coupling
+       logical :: obs_coupling
 #endif
 
        namelist /HYDRO_nlist/ NSOIL, ZSOIL8,&
@@ -141,13 +144,17 @@ CONTAINS
                     io_config_outputs, io_form_outputs, hydrotbl_f, t0OutputFlag, output_channelBucket_influx
 
 #ifdef WRF_HYDRO_NUDGING
-   namelist /NUDGING_nlist/ nudgingParamFile,       netwkReExFile,          &
+! SDL modified
+   !namelist /NUDGING_nlist/ nudgingParamFile,       netwkReExFile,          &
+   namelist /NUDGING_nlist/ coastal_coupling,       obs_coupling,           &
+                            nudgingParamFile,       netwkReExFile,          &
                             readTimesliceParallel,  temporalPersistence,    &
                             persistBias,            nudgingLastObsFile,     &
                             timeSlicePath,          nLastObs,               &
                             minNumPairsBiasPersist, maxAgePairsBiasPersist, &
                             biasWindowBeforeT0,     invDistTimeWeightBias,  &
                             noConstInterfBias
+                            !coastal_coupling, obs_coupling ! SDL add
 #endif
 
    !! ---- End definitions ----
@@ -189,6 +196,9 @@ CONTAINS
    maxAgePairsBiasPersist = -99999
    invDistTimeWeightBias  = .false.
    noConstInterfBias      = .false.
+! SDL add
+   coastal_coupling = .true.
+   obs_coupling = .false.
 #endif
 
 #ifdef MPP_LAND
@@ -376,6 +386,9 @@ CONTAINS
   call mpp_land_bcast_int1(maxAgePairsBiasPersist)
   call mpp_land_bcast_log1(invDistTimeWeightBias)
   call mpp_land_bcast_log1(noConstInterfBias)
+! SDL add
+  call mpp_land_bcast_log1(coastal_coupling)
+  call mpp_land_bcast_log1(obs_coupling)
 #endif
 #endif /* MPP_LAND */
 
@@ -483,6 +496,9 @@ CONTAINS
     nlst%maxAgePairsBiasPersist = maxAgePairsBiasPersist
     nlst%invDistTimeWeightBias  = invDistTimeWeightBias
     nlst%noConstInterfBias      = noConstInterfBias
+! SDL add
+    nlst%coastal_coupling = coastal_coupling
+    nlst%obs_coupling = obs_coupling
 #endif
 
 #ifdef MPP_LAND
@@ -550,6 +566,9 @@ CONTAINS
     write(6,*) " maxAgePairsBiasPersist     ",  maxAgePairsBiasPersist
     write(6,*) " invDistTimeWeightBias      ",  invDistTimeWeightBias
     write(6,*) " noConstInterfBias          ",  noConstInterfBias
+! SDL add
+    write(6,*) " nlst%coastal_coupling      ", coastal_coupling
+    write(6,*) " nlst%obs_coupling          ", obs_coupling
 #endif
 #endif /* HYDRO_D */
 #ifdef MPP_LAND
