@@ -1367,6 +1367,16 @@ real,              allocatable, dimension(:) :: gageQCIn        !!
 character(len=15), allocatable, dimension(:) :: usgsIdIn        !! USGS ID
 real,              allocatable, dimension(:) :: gageDischargeIn !! m3/s
 
+!!!!!zhy
+  integer, allocatable :: ID(:)
+  real, allocatable :: RLatitude(:)
+  real, allocatable :: RLongitude(:)
+  real, allocatable :: LLatitude(:)
+  real, allocatable :: LLongitude(:)
+  integer, allocatable :: Link(:)
+  character(len=15), allocatable :: GageID(:)
+  real, allocatable :: QcIn(:)
+      
 ! Is there a timeslice file?
 thisTime = obsTimeStr(structIndex)%time
 
@@ -1402,7 +1412,21 @@ if(flushAll) flush(flushUnit)
 !                      'timeslice_file_to_struct', &
 !                      readTimesliceErrFatal       )
 
-nGages=1 ! need to modiftied by yourself
+      
+!!SDL!!nGages=1 ! need to modiftied by yourself
+
+  !!!!!zhy
+  call GetLineNumber(nlst(did)%CSLocFile, nGages)
+
+  allocate(ID(nGages))
+  allocate(RLatitude(nGages))
+  allocate(RLongitude(nGages))
+  allocate(LLatitude(nGages))
+  allocate(LLongitude(nGages))
+  allocate(Link(nGages))
+  allocate(GageID(nGages))
+  allocate(QcIn(nGages))
+      
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! If the dimension comes back zero, there's an issue with the file.
@@ -1448,10 +1472,15 @@ if(filterObsToDom) then
      !timeIn  !comment out
      updateTimeIn="2023-07-12_14:40:00"
      !sliceResoIn=60 !comment out
-     usgsIdIn=(/'111111111111112','111111111111111'/)
-     gageTimeIn=(/thisTime,thisTime/)
-  
-     gageQCIn=(/0.05,1.0/)
+     !!SDL!!usgsIdIn=(/'111111111111112','111111111111111'/)
+     !!SDL!!gateTimeIn(/thisTime,thisTime/)
+     !!SDL!!gageQCIn=(/0.05,1.0/)
+     !!!!!zhy
+     do i = 1, line_number
+        read(10, *) ID(i), RLatitude(i), RLongitude(i), LLatitude(i), LLongitude(i), Link(i), usgsIdIn(i), gageQCIn(i)
+        gageTimeIn(i)=thisTime
+     end do      
+
      !where(schism_discharge_in .le. 0.000) gageQCIn=0
      !if (schism_discharge_in .le. 0) then
      !  gageQCIn=0
@@ -1520,6 +1549,17 @@ if(filterObsToDom) then
    deallocate(whSliceInDom)
    deallocate(usgsIdIn, gageTimeIn, gageQCIn, gageDischargeIn)
 
+  !!!!!zhy
+  deallocate(ID)
+  deallocate(RLatitude)
+  deallocate(RLongitude)
+  deallocate(LLatitude)
+  deallocate(LLongitude)
+  deallocate(Link)
+  deallocate(GageID)
+  deallocate(QcIn)
+
+      
 else ! dont filterObsToDom
 
    ! not reducing the obs file to the domain, can
