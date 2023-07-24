@@ -633,6 +633,7 @@ contains
     do i = 1, num_nudging
       read(10, *) ID(i), cross_lat_start(i), cross_lon_start(i), cross_lat_end(i), cross_lon_end(i), Link(i),GageID(i),QcIn(i)
     end do
+    close(10)
     
     allocate(cross_lons2(0))
     allocate(cross_lats2(0))
@@ -2120,6 +2121,20 @@ contains
     real(ESMF_KIND_R8), allocatable :: cross_lons2(:)
     real(ESMF_KIND_R8), allocatable :: cross_lats2(:)
 
+
+    !!!!!zhy
+    integer, allocatable :: ID(:)
+    real, allocatable :: RLatitude(:)
+    real, allocatable :: RLongitude(:)
+    real, allocatable :: LLatitude(:)
+    real, allocatable :: LLongitude(:)
+    integer, allocatable :: Link(:)
+    character(len=15), allocatable :: GageID(:)
+    real, allocatable :: QcIn(:)
+
+
+
+    
 #ifdef DEBUG
     call ESMF_LogWrite(MODNAME//": entered "//METHOD, ESMF_LOGMSG_INFO)
 #endif
@@ -2341,16 +2356,39 @@ contains
       ! Calculating river discharge
       ! create cross sections' lons and lats again to calculate the width of
       ! river
-      num_nudging=2
+
+      
+      !!SDL!!num_nudging=2
+      !!!!!zhy
+      call GetLineNumber(nlst(did)%CSLocFile, num_nudging)
+
+  allocate(ID(num_nudging))
+  allocate(RLatitude(num_nudging))
+  allocate(RLongitude(num_nudging))
+  allocate(LLatitude(num_nudging))
+  allocate(LLongitude(num_nudging))
+  allocate(Link(num_nudging))
+  allocate(GageID(num_nudging))
+  allocate(QcIn(num_nudging))
+
+      
       allocate(cross_lon_start(num_nudging))
       allocate(cross_lat_start(num_nudging))
       allocate(cross_lon_end(num_nudging))
       allocate(cross_lat_end(num_nudging))
-      cross_lat_start=(/33.832939_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/) ! lat: p1_s, p2_s
-      cross_lat_end=(/33.832774_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/) ! lat: p1_e, p2_e
-      cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
-      cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
+      !!SDL!!
+      !!cross_lat_start=(/33.832939_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/) ! lat: p1_s, p2_s
+      !!cross_lat_end=(/33.832774_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/) ! lat: p1_e, p2_e
+      !!cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
+      !!cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
 
+     open(10, file=nlst%CSLocFile, status='old', action='read')
+     ! Read the data into arrays
+     do i = 1, num_nudging
+       read(10, *) ID(i), cross_lat_start(i), cross_lon_start(i), cross_lat_end(i), cross_lon_end(i), Link(i),GageID(i),QcIn(i)
+     end do
+     close(10)
+      
       allocate(cross_lons2(0))
       allocate(cross_lats2(0))
 
@@ -2401,6 +2439,17 @@ contains
       deallocate(cross_lat_start)
       deallocate(cross_lon_end)
       deallocate(cross_lat_end)
+
+       !!!!!zhy
+    deallocate(ID)
+    deallocate(RLatitude)
+    deallocate(RLongitude)
+    deallocate(LLatitude)
+    deallocate(LLongitude)
+    deallocate(Link)
+    deallocate(GageID)
+    deallocate(QcIn)
+    
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !cross_a1=(cross_lat_start1-cross_lat_end1)/(cross_lon_start1-cross_lon_end1)
       !cross_b1=(cross_lon_start1*cross_lat_end1-cross_lat_start1*cross_lon_end1)/(cross_lon_start1-cross_lon_end1)
