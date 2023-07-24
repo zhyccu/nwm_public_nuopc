@@ -159,8 +159,8 @@ module config_base
 ! SDL add
      logical            :: coastal_coupling
      logical            :: obs_coupling
-     !!!!!zhy
-     character(len=256) :: CS_Loc
+     !!!!!zhy, Cross Section Location File
+     character(len=256) :: CSLocFile
 
      
    contains
@@ -540,6 +540,8 @@ contains
 ! SDL add
     logical            :: coastal_coupling
     logical            :: obs_coupling
+    !!!!!zhy
+    character(len=256) :: CSLocFile    
 #endif
 
     namelist /HYDRO_nlist/ NSOIL, ZSOIL8,&
@@ -568,6 +570,7 @@ contains
 ! SDL modified
     !namelist /NUDGING_nlist/ nudgingParamFile,       netwkReExFile,          &
     namelist /NUDGING_nlist/ coastal_coupling, obs_coupling, &
+         CSLocFile, &
          nudgingParamFile,       netwkReExFile,          &
          readTimesliceParallel,  temporalPersistence,    &
          persistBias,            nudgingLastObsFile,     &
@@ -619,6 +622,8 @@ contains
 ! SDL add
     coastal_coupling = .true.
     obs_coupling =.false.
+    !!!!!zhy
+    CSLocFile="./CS_loc.txt"
 #endif
 
 ! #ifdef MPP_LAND
@@ -820,6 +825,8 @@ contains
 ! SDL add
     nlst(did)%coastal_coupling = coastal_coupling
     nlst(did)%obs_coupling = obs_coupling
+    !!!!!zhy
+    nlst(did)%CSLocFile = CSLocFile
 #endif
 
     call nlst(did)%check()
