@@ -78,6 +78,8 @@
 ! SDL add
        logical            :: coastal_coupling
        logical            :: obs_coupling
+       !!!!!zhy
+       character(len=256) :: CSLocFile
 
        character(len=256) :: nudgingParamFile
        character(len=256) :: netwkReExFile
