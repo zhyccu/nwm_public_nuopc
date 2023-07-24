@@ -59,7 +59,7 @@ module NWM_ESMF_Extensions
   public :: zhy_convertToString3
   public :: zhy_convertToNumber
   !public :: zhy_WriteGridToNetcdf
- 
+  public :: GetLineNumber
 
   character(len=ESMF_MAXSTR) :: logMsg
 !==============================================================================
@@ -5455,6 +5455,26 @@ subroutine zhy_convertToString3(data, string)
   ! Trim any trailing spaces in the string
   string = trim(string)
 end subroutine zhy_convertToString3
+
+subroutine GetLineNumber(filename, num_entries)
+  implicit none
+  character(len=*), intent(in) :: filename
+  integer, intent(out) :: num_entries
+  integer :: ios
+  ! Open the input file
+  open(10, file=filename, status='old', action='read')
+
+  ! Count the number of lines in the file
+  num_entries = 0
+  do
+    read(10, *, iostat=ios)  ! Read a line without storing values
+    if (ios /= 0) exit      ! Exit the loop when end of file is reached
+    num_entries = num_entries + 1
+  end do
+  close(10)
+end subroutine GetLineNumber
+
+
 
 !  subroutine zhy_WriteGridToNetcdf(filename,grid)
 !    use ESMF

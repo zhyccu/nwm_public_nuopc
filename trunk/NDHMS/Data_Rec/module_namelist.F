@@ -119,6 +119,9 @@ CONTAINS
 ! SDL add
        logical :: coastal_coupling
        logical :: obs_coupling
+       !!!!!zhy
+       character(len=256) :: CS_Loc !!!!!cross section location
+
 #endif
 
        namelist /HYDRO_nlist/ NSOIL, ZSOIL8,&

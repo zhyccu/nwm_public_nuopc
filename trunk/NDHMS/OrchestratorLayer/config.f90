@@ -159,7 +159,10 @@ module config_base
 ! SDL add
      logical            :: coastal_coupling
      logical            :: obs_coupling
+     !!!!!zhy
+     character(len=256) :: CS_Loc
 
+     
    contains
 
      procedure, pass(self) :: check => rt_nlst_check
