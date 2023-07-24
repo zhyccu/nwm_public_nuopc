@@ -2478,10 +2478,11 @@ contains
         schism_discharge(ii)=0
         do jj=1,cross_numpoints-2
             distance_new(jj)=distance(jj)/2+distance(jj+1)/2
-            if schism_wl_ptr((ii-1)*cross_numpoints+jj+1) > 0:
+            if (schism_wl_ptr((ii-1)*cross_numpoints+jj+1) .gt. 0) then
               schism_discharge_tmp(jj)=distance_new(jj)*schism_wl_ptr((ii-1)*cross_numpoints+jj+1)*schism_dav_new((ii-1)*cross_num\
 points+jj+1)
               schism_discharge(ii)=schism_discharge(ii)+schism_discharge_tmp(jj)
+            endif
         enddo
         deallocate(distance_new)
         deallocate(schism_discharge_tmp)
