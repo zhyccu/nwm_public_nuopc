@@ -571,6 +571,8 @@ contains
     real(ESMF_KIND_R8), allocatable :: cross_lat_start(:)
     real(ESMF_KIND_R8), allocatable :: cross_lon_end(:)
     real(ESMF_KIND_R8), allocatable :: cross_lat_end(:)
+    real(ESMF_KIND_I4), allocatable :: ID(:)    !!!!!zhy
+    real(ESMF_KIND_I4), allocatable :: Link(:)  !!!!!zhy
     integer :: num_nudging
     real(ESMF_KIND_R8), allocatable :: tmpcross_lat(:)
     real(ESMF_KIND_R8), allocatable :: tmpcross_lon(:)
@@ -593,7 +595,11 @@ contains
     farrayPtr_loc = -9.9
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! SDL add for creating cross sections' lats and lons
-    num_nudging=2
+!!!!!zhy, change fixed Lat/Lon for cross section to data read from Input CSLocFile
+    !!@SDL!!num_nudging=2
+    !!!!!zhy
+    call GetLineNumber(nlst(did)%CSLocFile, num_nudging)
+    
     allocate(cross_lon_start(num_nudging))
     allocate(cross_lat_start(num_nudging))
     allocate(cross_lon_end(num_nudging))
@@ -603,6 +609,12 @@ contains
     cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
     cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
 
+    open(10, file=filename, status='old', action='read')
+    ! Read the data into arrays
+    do i = 1, num_nudging
+      read(10, *) ID(i), cross_lat_start(i), cross_lon_start(i), cross_lat_end(i), cross_lon_end(i), Link(i)
+    end do
+    
     allocate(cross_lons2(0))
     allocate(cross_lats2(0))
 
