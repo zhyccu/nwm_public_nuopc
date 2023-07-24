@@ -628,7 +628,7 @@ contains
     !!cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
     !!cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
 
-    open(10, file=filename, status='old', action='read')
+    open(10, file=nlst%CSLocFile, status='old', action='read')
     ! Read the data into arrays
     do i = 1, num_nudging
       read(10, *) ID(i), cross_lat_start(i), cross_lon_start(i), cross_lat_end(i), cross_lon_end(i), Link(i),GageID(i),QcIn(i)
