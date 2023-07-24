@@ -120,7 +120,7 @@ CONTAINS
        logical :: coastal_coupling
        logical :: obs_coupling
        !!!!!zhy
-       character(len=256) :: CS_Loc !!!!!cross section location
+       character(len=256) :: CSLocFile !!!!!cross section location
 
 #endif
 
@@ -150,6 +150,7 @@ CONTAINS
 ! SDL modified
    !namelist /NUDGING_nlist/ nudgingParamFile,       netwkReExFile,          &
    namelist /NUDGING_nlist/ coastal_coupling,       obs_coupling,           &
+                            CSLocFile, &!!!!!zhy
                             nudgingParamFile,       netwkReExFile,          &
                             readTimesliceParallel,  temporalPersistence,    &
                             persistBias,            nudgingLastObsFile,     &
@@ -202,6 +203,7 @@ CONTAINS
 ! SDL add
    coastal_coupling = .true.
    obs_coupling = .false.
+   CSLosFile="./CS_loc.txt"   
 #endif
 
 #ifdef MPP_LAND
@@ -392,6 +394,8 @@ CONTAINS
 ! SDL add
   call mpp_land_bcast_log1(coastal_coupling)
   call mpp_land_bcast_log1(obs_coupling)
+  !!!!!zhy
+  call mpp_land_bcast_log1(CSLocFile)
 #endif
 #endif /* MPP_LAND */
 
@@ -502,6 +506,8 @@ CONTAINS
 ! SDL add
     nlst%coastal_coupling = coastal_coupling
     nlst%obs_coupling = obs_coupling
+    !!!!!zhy
+    nlst%CSLocFile = CSLocFile
 #endif
 
 #ifdef MPP_LAND
@@ -572,6 +578,8 @@ CONTAINS
 ! SDL add
     write(6,*) " nlst%coastal_coupling      ", coastal_coupling
     write(6,*) " nlst%obs_coupling          ", obs_coupling
+    !!!!!zhy
+    write(6,*) " nlst%CSLocFile             ", CSLocFile
 #endif
 #endif /* HYDRO_D */
 #ifdef MPP_LAND
