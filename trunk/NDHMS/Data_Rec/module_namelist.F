@@ -395,7 +395,7 @@ CONTAINS
   call mpp_land_bcast_log1(coastal_coupling)
   call mpp_land_bcast_log1(obs_coupling)
   !!!!!zhy
-  call mpp_land_bcast_log1(CSLocFile)
+  call mpp_land_bcast_char(256,CSLocFile)
 #endif
 #endif /* MPP_LAND */
 

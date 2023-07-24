@@ -1376,6 +1376,7 @@ real,              allocatable, dimension(:) :: gageDischargeIn !! m3/s
   integer, allocatable :: Link(:)
   character(len=15), allocatable :: GageID(:)
   real, allocatable :: QcIn(:)
+  integer :: i
       
 ! Is there a timeslice file?
 thisTime = obsTimeStr(structIndex)%time
