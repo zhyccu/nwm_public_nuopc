@@ -1477,11 +1477,12 @@ if(filterObsToDom) then
      !!SDL!!gateTimeIn(/thisTime,thisTime/)
      !!SDL!!gageQCIn=(/0.05,1.0/)
      !!!!!zhy
+     open(10, file=filename, status='old', action='read')
      do i = 1, nGages
         read(10, *) ID(i), RLatitude(i), RLongitude(i), LLatitude(i), LLongitude(i), Link(i), usgsIdIn(i), gageQCIn(i)
         gageTimeIn(i)=thisTime
      end do      
-
+     close(10)
      !where(schism_discharge_in .le. 0.000) gageQCIn=0
      !if (schism_discharge_in .le. 0) then
      !  gageQCIn=0
