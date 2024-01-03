@@ -1376,7 +1376,8 @@ real,              allocatable, dimension(:) :: gageDischargeIn !! m3/s
   integer, allocatable :: Link(:)
   character(len=15), allocatable :: GageID(:)
   real, allocatable :: QcIn(:)
-      
+  integer :: i      
+
 ! Is there a timeslice file?
 thisTime = obsTimeStr(structIndex)%time
 
@@ -1476,10 +1477,12 @@ if(filterObsToDom) then
      !!SDL!!gateTimeIn(/thisTime,thisTime/)
      !!SDL!!gageQCIn=(/0.05,1.0/)
      !!!!!zhy
-     do i = 1, line_number
+     open(10, file=nlst%CSLocFile, status='old', action='read')
+     do i = 1, nGages
         read(10, *) ID(i), RLatitude(i), RLongitude(i), LLatitude(i), LLongitude(i), Link(i), usgsIdIn(i), gageQCIn(i)
         gageTimeIn(i)=thisTime
      end do      
+     close(10)
 
      !where(schism_discharge_in .le. 0.000) gageQCIn=0
      !if (schism_discharge_in .le. 0) then
@@ -3195,6 +3198,24 @@ end if
 
 end subroutine finish_stream_nudging
 
+
+subroutine GetLineNumber(filename, num_entries)
+  implicit none
+  character(len=*), intent(in) :: filename
+  integer, intent(out) :: num_entries
+  integer :: ios
+  ! Open the input file
+  open(10, file=filename, status='old', action='read')
+
+  ! Count the number of lines in the file
+  num_entries = 0
+  do
+    read(10, *, iostat=ios)  ! Read a line without storing values
+    if (ios /= 0) exit      ! Exit the loop when end of file is reached
+    num_entries = num_entries + 1
+  end do
+  close(10)
+end subroutine GetLineNumber
 
 
 end module module_stream_nudging

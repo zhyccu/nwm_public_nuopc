@@ -1743,6 +1743,8 @@ end subroutine land_driver_ini
 !------------------------------------------------------------------------
 
       if ( (noah_lsm%restart_frequency_hours .gt. 0) .and. &
+!!!!!zhy, modify restart output
+!!           (mod(ITIME, int(noah_lsm%restart_frequency_hours*3600./nint(dtbl))) == 0)) then
            (mod(ITIME, int(noah_lsm%restart_frequency_hours*3600./nint(dtbl))) == 0)) then
        if(noah_lsm%rst_bi_out .eq. 0) then
            call lsm_restart(state)
@@ -1752,7 +1754,10 @@ end subroutine land_driver_ini
 #ifdef WRF_HYDRO
       else
        if (noah_lsm%restart_frequency_hours <= 0) then
-          if ( (olddate( 9:10) == "01") .and. (olddate(12:13) == "00") .and. &
+!!!!!zhy, modify restart output
+!!          if ( (olddate( 9:10) == "01") .and. (olddate(12:13) == "00") .and. &
+!!               (olddate(15:16) == "00") .and. (olddate(18:19) == "00") ) then
+          if ( (olddate(12:13) == "00") .and. &
                (olddate(15:16) == "00") .and. (olddate(18:19) == "00") ) then
                if(noah_lsm%rst_bi_out .eq. 0) then
                    call lsm_restart(state)  ! jlm - i moved all the restart code to a subroutine.

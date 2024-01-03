@@ -601,21 +601,21 @@ contains
     ! temp
     allocate(farrayPtr_loc(loccnt))
     farrayPtr_loc = -9.9
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! SDL add for creating cross sections' lats and lons
-!!!!!zhy, change fixed Lat/Lon for cross section to data read from Input CSLocFile
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! SDL add for creating cross sections' lats and lons
+    !!!!!zhy, change fixed Lat/Lon for cross section to data read from Input CSLocFile
     !!@SDL!!num_nudging=2
     !!!!!zhy
     call GetLineNumber(nlst(did)%CSLocFile, num_nudging)
 
-  allocate(ID(num_nudging))
-  allocate(RLatitude(num_nudging))
-  allocate(RLongitude(num_nudging))
-  allocate(LLatitude(num_nudging))
-  allocate(LLongitude(num_nudging))
-  allocate(Link(num_nudging))
-  allocate(GageID(num_nudging))
-  allocate(QcIn(num_nudging))
+    allocate(ID(num_nudging))
+    allocate(RLatitude(num_nudging))
+    allocate(RLongitude(num_nudging))
+    allocate(LLatitude(num_nudging))
+    allocate(LLongitude(num_nudging))
+    allocate(Link(num_nudging))
+    allocate(GageID(num_nudging))
+    allocate(QcIn(num_nudging))
     
     allocate(cross_lon_start(num_nudging))
     allocate(cross_lat_start(num_nudging))
@@ -628,11 +628,13 @@ contains
     !!cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
     !!cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
 
-    open(10, file=filename, status='old', action='read')
+    open(10, file=nlst%CSLocFile, status='old', action='read')
     ! Read the data into arrays
     do i = 1, num_nudging
       read(10, *) ID(i), cross_lat_start(i), cross_lon_start(i), cross_lat_end(i), cross_lon_end(i), Link(i),GageID(i),QcIn(i)
+      print *, "zhy@crosssections",  ID(i), cross_lat_start(i), cross_lon_start(i), cross_lat_end(i), cross_lon_end(i), Link(i),GageID(i),QcIn(i)
     end do
+    close(10)
     
     allocate(cross_lons2(0))
     allocate(cross_lats2(0))
@@ -2120,6 +2122,16 @@ contains
     real(ESMF_KIND_R8), allocatable :: cross_lons2(:)
     real(ESMF_KIND_R8), allocatable :: cross_lats2(:)
 
+    !!!!!zhy
+    integer, allocatable :: ID(:)
+    real, allocatable :: RLatitude(:)
+    real, allocatable :: RLongitude(:)
+    real, allocatable :: LLatitude(:)
+    real, allocatable :: LLongitude(:)
+    integer, allocatable :: Link(:)
+    character(len=15), allocatable :: GageID(:)
+    real, allocatable :: QcIn(:)
+
 #ifdef DEBUG
     call ESMF_LogWrite(MODNAME//": entered "//METHOD, ESMF_LOGMSG_INFO)
 #endif
@@ -2341,15 +2353,50 @@ contains
       ! Calculating river discharge
       ! create cross sections' lons and lats again to calculate the width of
       ! river
-      num_nudging=2
-      allocate(cross_lon_start(num_nudging))
-      allocate(cross_lat_start(num_nudging))
-      allocate(cross_lon_end(num_nudging))
-      allocate(cross_lat_end(num_nudging))
-      cross_lat_start=(/33.832939_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/) ! lat: p1_s, p2_s
-      cross_lat_end=(/33.832774_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/) ! lat: p1_e, p2_e
-      cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
-      cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
+
+
+    call GetLineNumber(nlst(did)%CSLocFile, num_nudging)
+
+    allocate(ID(num_nudging))
+    allocate(RLatitude(num_nudging))
+    allocate(RLongitude(num_nudging))
+    allocate(LLatitude(num_nudging))
+    allocate(LLongitude(num_nudging))
+    allocate(Link(num_nudging))
+    allocate(GageID(num_nudging))
+    allocate(QcIn(num_nudging))
+    
+    allocate(cross_lon_start(num_nudging))
+    allocate(cross_lat_start(num_nudging))
+    allocate(cross_lon_end(num_nudging))
+    allocate(cross_lat_end(num_nudging))
+
+    !!SDL!!
+    !!cross_lat_start=(/33.832939_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/) ! lat: p1_s, p2_s
+    !!cross_lat_end=(/33.832774_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/) ! lat: p1_e, p2_e
+    !!cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
+    !!cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
+
+    open(10, file=nlst%CSLocFile, status='old', action='read')
+    ! Read the data into arrays
+    do i = 1, num_nudging
+      read(10, *) ID(i), cross_lat_start(i), cross_lon_start(i), cross_lat_end(i), cross_lon_end(i), Link(i),GageID(i),QcIn(i)
+      print *, "zhy@crosssections",  ID(i), cross_lat_start(i), cross_lon_start(i), cross_lat_end(i), cross_lon_end(i), Link(i),GageID(i),QcIn(i)
+   end do
+
+   close(10)
+
+      !!SDL!!
+!!      num_nudging=2
+!!      allocate(cross_lon_start(num_nudging))
+!!      allocate(cross_lat_start(num_nudging))
+!!      allocate(cross_lon_end(num_nudging))
+!!      allocate(cross_lat_end(num_nudging))
+!!      cross_lat_start=(/33.832939_ESMF_KIND_R8, 33.435429_ESMF_KIND_R8/) ! lat: p1_s, p2_s
+!!      cross_lat_end=(/33.832774_ESMF_KIND_R8, 33.428264_ESMF_KIND_R8/) ! lat: p1_e, p2_e
+!!      cross_lon_start=(/-79.046105_ESMF_KIND_R8, -79.194777_ESMF_KIND_R8/) ! lon: p1_s, p2_s
+!!      cross_lon_end=(/-79.042019_ESMF_KIND_R8, -79.186538_ESMF_KIND_R8/) ! lon: p1_e, p2_e
+
 
       allocate(cross_lons2(0))
       allocate(cross_lats2(0))
@@ -2401,6 +2448,17 @@ contains
       deallocate(cross_lat_start)
       deallocate(cross_lon_end)
       deallocate(cross_lat_end)
+
+      !!!!!zhy
+      deallocate(ID)
+      deallocate(RLatitude)
+      deallocate(RLongitude)
+      deallocate(LLatitude)
+      deallocate(LLongitude)
+      deallocate(Link)
+      deallocate(GageID)
+      deallocate(QcIn)
+
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !cross_a1=(cross_lat_start1-cross_lat_end1)/(cross_lon_start1-cross_lon_end1)
       !cross_b1=(cross_lon_start1*cross_lat_end1-cross_lat_start1*cross_lon_end1)/(cross_lon_start1-cross_lon_end1)
@@ -2421,39 +2479,60 @@ contains
                cross_lons2((ii-1)*cross_numpoints+jj+1), tmpdistance)
           distance(jj)=tmpdistance
         enddo
-        !allocate(distance_new(cross_numpoints-2))
-        if (ii .eq. 1) then ! Waccamaw river upstream boundary 
-          print*,'SDL test SCHISM distance upstream: ',distance
-          allocate(distance_new(cross_numpoints-2))
-          allocate(schism_discharge_tmp(cross_numpoints-2))
-          do jj=1,cross_numpoints-2
+
+        !!!!!zhy, add if statement to get rid of dry points
+        print*,'SDL test SCHISM distance upstream: ',distance
+        allocate(distance_new(cross_numpoints-2))
+        allocate(schism_discharge_tmp(cross_numpoints-2))
+        schism_discharge(ii)=0
+        do jj=1,cross_numpoints-2 
             distance_new(jj)=distance(jj)/2+distance(jj+1)/2
-            schism_discharge_tmp(jj)=distance_new(jj)*schism_wl_ptr((ii-1)*cross_numpoints+jj+1)* &
-                                     schism_dav_new((ii-1)*cross_numpoints+jj+1)
-          enddo
-          !schism_discharge(ii)=0
-          !do jj=1,cross_numpoints-2
-          !  schism_discharge(ii)=schism_discharge(ii)+schism_discharge_tmp(jj)
-          !enddo
-          schism_discharge(ii)=schism_discharge_tmp(2) ! center point
-          deallocate(distance_new)
-          deallocate(schism_discharge_tmp)
-        else if (ii .eq. 2) then ! Waccamaw river downstream, near estuary
-          print*,'SDL test SHCISM distance downstream: ',distance
-          allocate(distance_new(cross_numpoints-2))
-          allocate(schism_discharge_tmp(cross_numpoints-2))
-          do jj=1,cross_numpoints-2
-            distance_new(jj)=distance(jj)/2+distance(jj+1)/2
-            schism_discharge_tmp(jj)=distance_new(jj)*schism_wl_ptr((ii-1)*cross_numpoints+jj+1)* &
-                                     schism_dav_new((ii-1)*cross_numpoints+jj+1)
-          enddo
-          schism_discharge(ii)=0
-          do jj=1,cross_numpoints-2
-            schism_discharge(ii)=schism_discharge(ii)+schism_discharge_tmp(jj)
-          enddo
-          deallocate(distance_new)
-          deallocate(schism_discharge_tmp)
-        endif
+            if (schism_wl_ptr((ii-1)*cross_numpoints+jj+1) .gt. 0) then
+              schism_discharge_tmp(jj)=distance_new(jj)*schism_wl_ptr((ii-1)*cross_numpoints+jj+1)*schism_dav_new((ii-1)*cross_numpoints+jj+1)
+              schism_discharge(ii)=schism_discharge(ii)+schism_discharge_tmp(jj)
+            endif
+        enddo
+        deallocate(distance_new)
+        deallocate(schism_discharge_tmp)
+
+!!SDL!!
+!!        !allocate(distance_new(cross_numpoints-2))
+!!        if (ii .eq. 1) then ! Waccamaw river upstream boundary 
+!!          print*,'SDL test SCHISM distance upstream: ',distance
+!!          allocate(distance_new(cross_numpoints-2))
+!!          allocate(schism_discharge_tmp(cross_numpoints-2))
+!!          do jj=1,cross_numpoints-2
+!!            distance_new(jj)=distance(jj)/2+distance(jj+1)/2
+!!            schism_discharge_tmp(jj)=distance_new(jj)*schism_wl_ptr((ii-1)*cross_numpoints+jj+1)* &
+!!                                     schism_dav_new((ii-1)*cross_numpoints+jj+1)
+!!          enddo
+!!          !schism_discharge(ii)=0
+!!          !do jj=1,cross_numpoints-2
+!!          !  schism_discharge(ii)=schism_discharge(ii)+schism_discharge_tmp(jj)
+!!          !enddo
+!!          schism_discharge(ii)=schism_discharge_tmp(2) ! center point
+!!          deallocate(distance_new)
+!!          deallocate(schism_discharge_tmp)
+!!        else if (ii .eq. 2) then ! Waccamaw river downstream, near estuary
+!!          print*,'SDL test SHCISM distance downstream: ',distance
+!!          allocate(distance_new(cross_numpoints-2))
+!!          allocate(schism_discharge_tmp(cross_numpoints-2))
+!!          do jj=1,cross_numpoints-2
+!!            distance_new(jj)=distance(jj)/2+distance(jj+1)/2
+!!            schism_discharge_tmp(jj)=distance_new(jj)*schism_wl_ptr((ii-1)*cross_numpoints+jj+1)* &
+!!                                     schism_dav_new((ii-1)*cross_numpoints+jj+1)
+!!          enddo
+!!          schism_discharge(ii)=0
+!!          do jj=1,cross_numpoints-2
+!!            schism_discharge(ii)=schism_discharge(ii)+schism_discharge_tmp(jj)
+!!          enddo
+!!          deallocate(distance_new)
+!!          deallocate(schism_discharge_tmp)
+!!        endif
+
+
+
+
         deallocate(distance)
       enddo
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2504,8 +2583,15 @@ contains
         else
           open(unit=2222,file='SCHISM-TO-NWM-Discharge.txt',status='new')
         endif
-        write(2222, '(I4,I2.2,I2.2,I2.2,I2.2,I2.2,F20.5,F20.5)') year, month, day, hour, minute, second, &
-              schism_discharge(1), schism_discharge(2)
+!!!!!13points
+!        write(2222, '(I4,I2.2,I2.2,I2.2,I2.2,I2.2,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5)') year, month, day, hour, minute, second, &
+!              schism_discharge(1), schism_discharge(2),schism_discharge(3),schism_discharge(4),schism_discharge(5), &
+!              schism_discharge(6),schism_discharge(7),schism_discharge(8),&
+!              schism_discharge(9),schism_discharge(10),schism_discharge(11),schism_discharge(12),schism_discharge(13)
+!!!!!zhy, 9 points
+        write(2222, '(I4,I2.2,I2.2,I2.2,I2.2,I2.2,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5,F15.5)') year, month, day, hour, minute, second, &
+              schism_discharge(1), schism_discharge(2),schism_discharge(3),schism_discharge(4),schism_discharge(5), &
+              schism_discharge(6),schism_discharge(7),schism_discharge(8),schism_discharge(9)
         close(2222)
       endif
     
